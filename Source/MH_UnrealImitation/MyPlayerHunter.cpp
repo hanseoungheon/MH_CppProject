@@ -24,6 +24,9 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
+	//WalkSpeed는 헤더에 선언해 놓은 Float 변수입니다.
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
 	CameraBoom
 		= CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -34,7 +37,6 @@ AMyPlayerHunter::AMyPlayerHunter()
 		= CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
-
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +50,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 {
 	FVector2D InputValue = Value.Get<FVector2D>();
 
-	if (Controller != nullptr && (InputValue.X != 0.0f) || (InputValue.Y != 0.0f))
+	if (Controller != nullptr && (InputValue.X != 0.0f || InputValue.Y != 0.0f))
 	{
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 
@@ -60,10 +62,43 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 			AddMovementInput(RightDirection, InputValue.X);
 		}
 
+		if (InputValue.Y != 0.0f)
+		{
+			const FVector ForwardVector =
+				YawRotation.Vector();
 
+			AddMovementInput(ForwardVector, InputValue.Y);
+		}
+	}
+}
+
+void AMyPlayerHunter::Look(const FInputActionValue& Value)
+{
+	FVector2D InputValue = Value.Get<FVector2D>();
+
+	if (InputValue.X != 0.0f)
+	{
+		AddControllerYawInput(InputValue.X);
 	}
 
+	if (InputValue.Y != 0.0f)
+	{
+		AddControllerPitchInput(InputValue.Y);
+	}
+}
 
+void AMyPlayerHunter::BeginRun()
+{
+	float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	
+	//달릴시 80% 이동속도 버프
+	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 1.8;
+
+}
+
+void AMyPlayerHunter::StopRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 // Called every frame
@@ -96,6 +131,12 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		}
 
 		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Move);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Look);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &AMyPlayerHunter::BeginRun);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &AMyPlayerHunter::StopRun);
 
 	}
 

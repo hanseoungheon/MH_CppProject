@@ -28,6 +28,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	void Move(const FInputActionValue& Value);
+
+	void Look(const FInputActionValue& Value);
+
+	void BeginRun();
+
+	void StopRun();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,6 +47,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Move;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Look;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Run;
 	//UPROPERTY(EditAnywhere, Category = "Input")
 
+protected:
+	float WalkSpeed = 300.0f;
 };
