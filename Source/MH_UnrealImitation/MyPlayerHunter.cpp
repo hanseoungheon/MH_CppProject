@@ -89,15 +89,17 @@ void AMyPlayerHunter::Look(const FInputActionValue& Value)
 
 void AMyPlayerHunter::BeginRun()
 {
+	IsBeRun = true;
 	float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	
 	//달릴시 80% 이동속도 버프
-	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 1.8;
+	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 
 }
 
 void AMyPlayerHunter::StopRun()
 {
+	IsBeRun = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 

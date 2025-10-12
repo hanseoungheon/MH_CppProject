@@ -54,6 +54,23 @@ public:
 	class UInputAction* IA_Run;
 	//UPROPERTY(EditAnywhere, Category = "Input")
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	bool bHunterCanInteract = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	bool bHasWeapon = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	bool bIsHanging = true;
+
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float WalkSpeed = 300.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
+	bool IsBeRun = false;
+
+	
 };
