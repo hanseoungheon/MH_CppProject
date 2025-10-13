@@ -23,6 +23,9 @@ public:
 	// Sets default values for this character's properties
 	AMyPlayerHunter();
 
+	UFUNCTION(BlueprintCallable, Category = "Interact")
+	void IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,6 +37,12 @@ protected:
 	void BeginRun();
 
 	void StopRun();
+
+	UFUNCTION(BlueprintCallable, Category = "Interact")
+	void PickUpTheWeapon(FName SocketName);
+
+	UFUNCTION(BlueprintCallable, Category = "Interact")
+	void StartPickUp();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -53,6 +62,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Run;
 	//UPROPERTY(EditAnywhere, Category = "Input")
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Interact;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	class AMyLongSword* LongSword = nullptr;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bHunterCanInteract = false;

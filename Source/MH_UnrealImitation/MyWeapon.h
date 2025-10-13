@@ -59,7 +59,4 @@ protected:
 
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
 	//class AMyPlayerHunter* PlayerCharacter;
-	
-
-
 };

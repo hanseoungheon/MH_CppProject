@@ -2,7 +2,9 @@
 
 
 #include "MyPlayerHunter.h"
+#include "MyLongSword.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -37,6 +39,30 @@ AMyPlayerHunter::AMyPlayerHunter()
 		= CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+}
+
+void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
+{
+	AMyLongSword* LS = Cast<AMyLongSword>(WeaponActor);
+
+	if (LS == nullptr)
+	{
+		return;
+	}
+
+	if (Trigger == true)
+	{
+		LS->SetOwner(this);
+		LongSword = LS;
+	}
+
+	else //Trigger == false
+	{
+		if (bHasWeapon == false) //무기를 가지고 있지 않을때만 벗어날때 SetOwner취소하기.
+		{
+			LS->SetOwner(nullptr);
+		}
+	}
 }
 
 // Called when the game starts or when spawned
@@ -95,12 +121,52 @@ void AMyPlayerHunter::BeginRun()
 	//달릴시 80% 이동속도 버프
 	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 
+
 }
 
 void AMyPlayerHunter::StopRun()
 {
 	IsBeRun = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
+{
+	if (bHasWeapon == false && bHunterCanInteract == true)
+	{
+		//만약 무기가 없는 상태고, 상호작용이 가능한 상태라면?
+		bHasWeapon = true;
+
+		if (LongSword != nullptr)
+		{
+			//태도를 플레이어에게 붙힘.
+			LongSword->AttachToComponent(GetMesh(),
+				FAttachmentTransformRules::SnapToTargetIncludingScale,SocketName);
+		}
+
+		//태도의 충돌구체를 비활성화함.
+		if (LongSword->SphereCollision != nullptr)
+		{
+			LongSword->SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			LongSword->SphereCollision->SetGenerateOverlapEvents(false);
+			LongSword->SphereCollision->SetNotifyRigidBodyCollision(false);
+		}
+
+		//메기 활성화.
+		bIsHanging = true;
+	}
+}
+
+void AMyPlayerHunter::StartPickUp()
+{
+	if (LongSword != nullptr)
+	{
+		FName LongSwordSocketName = TEXT("LongSword");
+		PickUpTheWeapon(LongSwordSocketName);
+	}
+
+	//여기부터 대검 등 다른 무기 넣으면 될듯?
+	//if(GreatSword != nullptr)...
 }
 
 // Called every frame
@@ -139,6 +205,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &AMyPlayerHunter::BeginRun);
 
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &AMyPlayerHunter::StopRun);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &AMyPlayerHunter::StartPickUp);
 	}
 
 }
