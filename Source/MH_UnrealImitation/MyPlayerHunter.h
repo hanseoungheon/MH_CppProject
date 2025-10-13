@@ -7,7 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "MyCharacterState.h"
 #include "MyPlayerHunter.generated.h"
+
 
 UCLASS()
 class MH_UNREALIMITATION_API AMyPlayerHunter : public ACharacter
@@ -33,6 +35,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnLongSwordAndHouse();
 
+	UFUNCTION(BlueprintCallable, Category = "State")
+	ECharacterState GetCharacterState() const;
+
+	UFUNCTION(BlueprintCallable, Category = "State")
+	void SetState(const ECharacterState NewState);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,11 +53,14 @@ protected:
 
 	void StopRun();
 
+	void Attack();
+
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void StartPickUp();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -73,6 +84,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Interact;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Attack;
+
+
+public:
+
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/LongSword")
 	class AMyLongSword* LongSword = nullptr;
 
@@ -91,7 +110,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bIsHanging = true;
 
+
+
+
+
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	ECharacterState State = ECharacterState::Peace;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float WalkSpeed = 300.0f;
 
@@ -99,6 +126,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	bool IsBeRun = false;
 
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* DrawLongSword = nullptr;
 	
 	
 };

@@ -93,7 +93,7 @@ void AMyWeapon::SetVisibleWeapon()
 
 		//만약에 무기를 매고있으면 보이지 않게 무기를 들고 있다면 보이게.
 		Trigger ? 
-			WeaponMesh->SetVisibility(false) : WeaponMesh->SetVisibility(false);
+			WeaponMesh->SetVisibility(false) : WeaponMesh->SetVisibility(true);
 	}
 }
 

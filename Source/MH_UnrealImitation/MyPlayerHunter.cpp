@@ -13,6 +13,7 @@
 #include "InputMappingContext.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "InputAction.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 AMyPlayerHunter::AMyPlayerHunter()
@@ -75,6 +76,17 @@ void AMyPlayerHunter::SpawnDummys()
 	}
 }
 
+ECharacterState AMyPlayerHunter::GetCharacterState() const
+{
+	return State;
+}
+
+void AMyPlayerHunter::SetState(const ECharacterState NewState)
+{
+	State = NewState;
+}
+
+
 // Called when the game starts or when spawned
 void AMyPlayerHunter::BeginPlay()
 {
@@ -125,6 +137,11 @@ void AMyPlayerHunter::Look(const FInputActionValue& Value)
 
 void AMyPlayerHunter::BeginRun()
 {
+	if (State != ECharacterState::Peace)
+	{
+		return;
+	}
+
 	IsBeRun = true;
 	float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	
@@ -134,9 +151,32 @@ void AMyPlayerHunter::BeginRun()
 
 void AMyPlayerHunter::StopRun()
 {
+	if (State != ECharacterState::Peace)
+	{
+		return;
+	}
+
 	IsBeRun = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
+
+void AMyPlayerHunter::Attack()
+{
+	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
+	if (LongSword != nullptr)
+	{
+		//태도 무기공격 구현.
+		if (bIsHanging == true)
+		{
+			PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
+		}
+		else
+		{
+
+		}
+	}
+}
+
 
 void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 {
@@ -196,7 +236,7 @@ void AMyPlayerHunter::StartPickUp()
 		PickUpTheWeapon(LongSwordSocketName);
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("Is Working"));
+	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
 	//여기부터 대검 등 다른 무기 넣으면 될듯?
 	//if(ActorHasTag("GreatSword"))...
 }
@@ -205,6 +245,15 @@ void AMyPlayerHunter::StartPickUp()
 void AMyPlayerHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//if (LongSword != nullptr)
+	//{
+	//	UE_LOG(LogTemp, Display, TEXT("Not NULL"));
+	//}
+	//else if (LongSword == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Display, TEXT("Is NULL"));
+	//}
 
 }
 
@@ -240,6 +289,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &AMyPlayerHunter::StopRun);
 
 		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMyPlayerHunter::StartPickUp);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Attack);
 	}
 
 }
