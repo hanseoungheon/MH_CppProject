@@ -24,10 +24,10 @@ protected:
 	void DisCountSharpness(float DisSharp = 2.0f);
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
-	void IsOverlaptoSphere(AActor* OtherActor);
+	virtual void IsOverlapToSphere(AActor* OtherActor);
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
-	void IsEndOverlaptoSphere(AActor* OtherActor);
+	virtual void IsEndOverlapToSphere(AActor* OtherActor);
 
 public:	
 	// Called every frame

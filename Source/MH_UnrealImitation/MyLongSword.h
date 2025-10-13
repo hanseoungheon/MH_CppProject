@@ -35,10 +35,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void IsOverlapToSphere(AActor* OtherActor) override;
+
+	virtual void IsEndOverlapToSphere(AActor* OtherActor) override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
 	ELongSwordLevel KiinLevel = ELongSwordLevel::LSLevel0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
+	bool bIsIai;
+
 private:
 	float longSwordBaseDamage = 50.0f;
+
+
 };

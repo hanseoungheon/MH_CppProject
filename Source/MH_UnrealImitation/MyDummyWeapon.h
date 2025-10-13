@@ -30,6 +30,9 @@ public:
 	void MySetOwner(AActor* NewOwner);
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
-	void SetVisibleDummy();
+	virtual void SetVisibleDummy();
+
+	//UFUNCTION(BlueprintCallable, Category = "LongSword")
+	//void SetVisibleLongSwordHouse();
 
 };

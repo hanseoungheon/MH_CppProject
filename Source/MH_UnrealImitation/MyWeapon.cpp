@@ -56,7 +56,7 @@ void AMyWeapon::DisCountSharpness(float DisSharp)
 	sharpness -= DisSharp;
 }
 
-void AMyWeapon::IsOverlaptoSphere(AActor* OtherActor)
+void AMyWeapon::IsOverlapToSphere(AActor* OtherActor)
 {
 	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
 
@@ -67,7 +67,7 @@ void AMyWeapon::IsOverlaptoSphere(AActor* OtherActor)
 
 }
 
-void AMyWeapon::IsEndOverlaptoSphere(AActor* OtherActor)
+void AMyWeapon::IsEndOverlapToSphere(AActor* OtherActor)
 {
 	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
 

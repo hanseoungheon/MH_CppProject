@@ -26,6 +26,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor);
 
+
+	UFUNCTION(BlueprintCallable, Category = "Interact")
+	void SpawnDummys();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnLongSwordAndHouse();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -66,9 +73,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Interact;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/LongSword")
 	class AMyLongSword* LongSword = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/LongSword")
+	class AMyDummyWeapon* DummyLongSword = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/LongSword")
+	class AMyDummyLSHouse* DummyLSHouse = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bHunterCanInteract = false;
@@ -79,7 +91,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bIsHanging = true;
 
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float WalkSpeed = 300.0f;
@@ -88,5 +99,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	bool IsBeRun = false;
 
+	
 	
 };

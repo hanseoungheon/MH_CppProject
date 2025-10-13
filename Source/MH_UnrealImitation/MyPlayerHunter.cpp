@@ -3,6 +3,8 @@
 
 #include "MyPlayerHunter.h"
 #include "MyLongSword.h"
+#include "MyDummyWeapon.h"
+#include "MyDummyLSHouse.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -65,6 +67,14 @@ void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
 	}
 }
 
+void AMyPlayerHunter::SpawnDummys()
+{
+	if (LongSword != nullptr)
+	{
+		SpawnLongSwordAndHouse();
+	}
+}
+
 // Called when the game starts or when spawned
 void AMyPlayerHunter::BeginPlay()
 {
@@ -120,8 +130,6 @@ void AMyPlayerHunter::BeginRun()
 	
 	//달릴시 80% 이동속도 버프
 	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
-
-
 }
 
 void AMyPlayerHunter::StopRun()
@@ -135,25 +143,48 @@ void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 	if (bHasWeapon == false && bHunterCanInteract == true)
 	{
 		//만약 무기가 없는 상태고, 상호작용이 가능한 상태라면?
-		bHasWeapon = true;
 
 		if (LongSword != nullptr)
 		{
+			bHasWeapon = true;
 			//태도를 플레이어에게 붙힘.
 			LongSword->AttachToComponent(GetMesh(),
 				FAttachmentTransformRules::SnapToTargetIncludingScale,SocketName);
 		}
 
+
 		//태도의 충돌구체를 비활성화함.
-		if (LongSword->SphereCollision != nullptr)
+		USphereComponent* LongSwordSphereComponent = 
+			Cast<USphereComponent>(LongSword->SphereCollision);
+
+		if (LongSwordSphereComponent != nullptr)
 		{
-			LongSword->SphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			LongSword->SphereCollision->SetGenerateOverlapEvents(false);
-			LongSword->SphereCollision->SetNotifyRigidBodyCollision(false);
+			LongSwordSphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//LongSword->SphereCollision->SetGenerateOverlapEvents(false);
+			//LongSword->SphereCollision->SetNotifyRigidBodyCollision(false);
 		}
+
+		//더미무기 활성화.
+		SpawnDummys();
 
 		//메기 활성화.
 		bIsHanging = true;
+
+		//이제 Visible설정하자. 그냥 매번 이렇게 불러오는게 맘 편할듯.
+		if (LongSword != nullptr)
+		{
+			LongSword->SetVisibleWeapon();
+		}
+
+		if (DummyLongSword != nullptr)
+		{
+			DummyLongSword->SetVisibleDummy();
+		}
+
+		if (DummyLSHouse != nullptr)
+		{
+			DummyLSHouse->SetVisibleLSHouse();
+		}
 	}
 }
 
@@ -165,8 +196,9 @@ void AMyPlayerHunter::StartPickUp()
 		PickUpTheWeapon(LongSwordSocketName);
 	}
 
+	UE_LOG(LogTemp, Display, TEXT("Is Working"));
 	//여기부터 대검 등 다른 무기 넣으면 될듯?
-	//if(GreatSword != nullptr)...
+	//if(ActorHasTag("GreatSword"))...
 }
 
 // Called every frame
@@ -197,6 +229,7 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 			EnhancedSubSystem->AddMappingContext(IMC_Player, 1);
 		}
+		ensureMsgf(IA_Interact, TEXT("IA_Interact is NULL"));
 
 		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Move);
 
@@ -206,7 +239,7 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &AMyPlayerHunter::StopRun);
 
-		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &AMyPlayerHunter::StartPickUp);
+		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMyPlayerHunter::StartPickUp);
 	}
 
 }

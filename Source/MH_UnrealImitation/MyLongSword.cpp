@@ -2,6 +2,7 @@
 
 
 #include "MyLongSword.h"
+#include "MyPlayerHunter.h"
 
 void AMyLongSword::BeginPlay()
 {
@@ -11,6 +12,35 @@ void AMyLongSword::BeginPlay()
 	//어..음 물론 다른 데미지도 설정해야함 그건 차차 하기
 	baseDamage = longSwordBaseDamage;
 }
+
+void AMyLongSword::IsOverlapToSphere(AActor* OtherActor)
+{
+	Super::IsOverlapToSphere(OtherActor);
+
+	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
+
+	if (PlayerCharacter != nullptr)
+	{
+		//여기서 겹치면 플레이어를 주인으로 설정
+		PlayerCharacter->IsInteract_PickUpWeapon(true, this);
+	}
+
+}
+
+void AMyLongSword::IsEndOverlapToSphere(AActor* OtherActor)
+{
+	Super::IsEndOverlapToSphere(OtherActor);
+
+	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
+
+	if (PlayerCharacter != nullptr)
+	{
+		//여기서 벗어나면 주인 해제.
+		PlayerCharacter->IsInteract_PickUpWeapon(false, this);
+	}
+
+}
+
 void AMyLongSword::SwitchLongSwordLevel()
 {
 	switch (KiinLevel)
