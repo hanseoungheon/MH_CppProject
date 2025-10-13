@@ -58,7 +58,7 @@ void AMyWeapon::DisCountSharpness(float DisSharp)
 
 void AMyWeapon::IsOverlaptoSphere(AActor* OtherActor)
 {
-	PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
+	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
 
 	if (PlayerCharacter != nullptr)
 	{
@@ -69,7 +69,7 @@ void AMyWeapon::IsOverlaptoSphere(AActor* OtherActor)
 
 void AMyWeapon::IsEndOverlaptoSphere(AActor* OtherActor)
 {
-	PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
+	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(OtherActor);
 
 	if (PlayerCharacter != nullptr)
 	{
@@ -81,12 +81,19 @@ void AMyWeapon::IsEndOverlaptoSphere(AActor* OtherActor)
 void AMyWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
-	PlayerCharacter = Cast<AMyPlayerHunter>(GetOwner());
+void AMyWeapon::SetVisibleWeapon()
+{
+	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(GetOwner());
 
-	if (PlayerCharacter != nullptr && PlayerCharacter->bHasWeapon == true)
+	if (PlayerCharacter != nullptr && PlayerCharacter->bHasWeapon)
 	{
-		PlayerCharacter->bIsHanging ? WeaponMesh->SetVisibility(false) : WeaponMesh->SetVisibility(true);
+		bool Trigger = PlayerCharacter->bIsHanging;
+
+		//만약에 무기를 매고있으면 보이지 않게 무기를 들고 있다면 보이게.
+		Trigger ? 
+			WeaponMesh->SetVisibility(false) : WeaponMesh->SetVisibility(false);
 	}
 }
 

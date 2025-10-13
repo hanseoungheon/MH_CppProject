@@ -33,6 +33,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//Set Visibility Weapon Maybe Need Public
+	//무기 보이게 할지 아니게 할지 트리거하는 함수. 
+	UFUNCTION(BlueprintCallable, Category = "Interact")
+	void SetVisibleWeapon();
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
@@ -52,8 +57,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	float MaxSharpness = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
-	class AMyPlayerHunter* PlayerCharacter;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+	//class AMyPlayerHunter* PlayerCharacter;
 	
 
 
