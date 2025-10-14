@@ -50,13 +50,26 @@ void AMyDummyWeapon::SetVisibleDummy()
 	{
 		ECharacterState CharState = PlayerCharacter->GetCharacterState();
 
-		if (CharState == ECharacterState::Peace) //만약 납도상태면 칼집에 넣은 검이 보여야함.
+		switch (CharState)
 		{
-			DummyWeaponMesh->SetVisibility(true);
-		}
-		else if (CharState == ECharacterState::Battle) //만약 발도상태면 칼집에 넣은 검이 보여선 안됨.
-		{
-			DummyWeaponMesh->SetVisibility(false);
+		case ECharacterState::Peace: 
+			DummyWeaponMesh->SetVisibility(true); //만약에 Peace 즉 비전투중인 상태면 더미검들은 보여야함.
+			break;
+
+		case ECharacterState::Battle:
+			DummyWeaponMesh->SetVisibility(false); //만약에 Battle 즉 전투중인 상태면 더미검들은 보여야함.
+			break;
+
+		case ECharacterState::Draw:
+			DummyWeaponMesh->SetVisibility(false); //만약에 Draw 즉 검을 뽑고있는상태면 더미검은 보여선 안됨.
+			break;
+
+		case ECharacterState::Sheath:
+			DummyWeaponMesh->SetVisibility(true); //만약에 Sheath 즉 검을 넣고있는 상태면 더미검은 보여야함.
+			break;
+
+		default:
+			break;
 		}
 	}
 }

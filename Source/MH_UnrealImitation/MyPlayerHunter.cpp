@@ -179,7 +179,6 @@ void AMyPlayerHunter::Attack()
 		else
 		{
 			bIsDrawWeapon = true; //검을 꺼내는중인 상태로 전환.
-			bIsCanAttack = false; //공격불가능한 상태로 전환.
 			//발도 코드 실행.
 			PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
 		}
@@ -187,15 +186,12 @@ void AMyPlayerHunter::Attack()
 	}
 	else if (State == ECharacterState::Battle)
 	{
-		if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
+		if (bIsAttacking == false) //공격 가능한 상태이며(Battle) 공격중이 아닐경우.
 		{
 			//공격 코드 실행.
-			bIsCanAttack = false;
-			bIsAttacking = true;
-
+			bIsAttacking = true; //공격중인 상태로 변경
 			PlayAnimMontage(DefaultAttack, 1.0f, TEXT("DAttack"));
 		}
-
 	}
 }
 
@@ -208,11 +204,10 @@ void AMyPlayerHunter::AttackSub()
 
 	if (State == ECharacterState::Battle)
 	{
-		if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
+		if (bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
 		{
 			//공격 코드 실행
-			bIsCanAttack = false;
-			bIsAttacking = true;
+			bIsAttacking = true; //공격중인 상태로 변경.
 
 			PlayAnimMontage(SubAttack, 1.0f, TEXT("SAttack"));
 		}

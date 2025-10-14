@@ -121,14 +121,6 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
 	bool bIsAttacking = false; //공격중인지?
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
-	bool bIsCanAttack = true; //공격 가능한 상태인지?
-
-
-
-
-
-
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")

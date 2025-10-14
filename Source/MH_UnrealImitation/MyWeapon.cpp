@@ -93,13 +93,26 @@ void AMyWeapon::SetVisibleWeapon()
 		ECharacterState CharState = PlayerCharacter->GetCharacterState();
 
 		//캐릭터 상태를 가져와서 상태별로 점검.
-		if (CharState == ECharacterState::Peace) //만약 Peace 즉 납도상태면 검이 보이면 안됨.
+		switch (CharState)
 		{
-			WeaponMesh->SetVisibility(false);
-		}
-		else if (CharState == ECharacterState::Battle) //만약 Battle 즉 발도상태면 검이 보여야함.
-		{
-			WeaponMesh->SetVisibility(true);
+		case ECharacterState::Peace:
+			WeaponMesh->SetVisibility(false); //만약 Peace 즉 납도상태면 검이 보이면 안됨.
+			break;
+
+		case ECharacterState::Battle:
+			WeaponMesh->SetVisibility(true); //만약 Battle 즉 전투상태면 검이 보여야함.
+			break;
+
+		case ECharacterState::Draw:
+			WeaponMesh->SetVisibility(true); //만약 Draw 즉 검을 뽑는중인 상태면 검이 보여야함.
+			break;
+
+		case ECharacterState::Sheath:
+			WeaponMesh->SetVisibility(false); //만약 Sheath 즉 검을 넣는중인 상태면 검이 보이면 안됨.
+			break;
+
+		default:
+			break;
 		}
 	}
 }
