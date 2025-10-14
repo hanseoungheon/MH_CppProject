@@ -163,38 +163,62 @@ void AMyPlayerHunter::StopRun()
 void AMyPlayerHunter::Attack()
 {
 	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
-	if (LongSword != nullptr)
+	if (LongSword == nullptr)
 	{
-		//태도 무기공격 구현.
-		//Todo: 최적화 해보기.
-		if (bIsDrawWeapon == false && State == ECharacterState::Peace)
-		{
-			if(MovingSpeed > WalkSpeed)
-			{
-				//달리고 있을때 공격키 누르면 바로 공격이 나가게.
-			}
-			else
-			{
-				bIsDrawWeapon = true; //검을 꺼내는중인 상태로 전환.
-				bIsCanAttack = false; //공격불가능한 상태로 전환.
-				//발도 코드 실행.
-				PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
-			}
+		return;
+	}
 
+	//태도 무기공격 구현.
+	//Todo: 최적화 해보기.
+	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
+	{
+		if (MovingSpeed > WalkSpeed)
+		{
+			//달리고 있을때 공격키 누르면 바로 공격이 나가게.
 		}
-		else if(State == ECharacterState::Battle)
+		else
 		{
-			if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
-			{
-				//공격 코드 실행.
-				bIsCanAttack = false;
-				bIsAttacking = true;
-				PlayAnimMontage(DefaultAttack, 1.0f, TEXT("DAttack"));
-			}
+			bIsDrawWeapon = true; //검을 꺼내는중인 상태로 전환.
+			bIsCanAttack = false; //공격불가능한 상태로 전환.
+			//발도 코드 실행.
+			PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
+		}
 
+	}
+	else if (State == ECharacterState::Battle)
+	{
+		if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
+		{
+			//공격 코드 실행.
+			bIsCanAttack = false;
+			bIsAttacking = true;
+
+			PlayAnimMontage(DefaultAttack, 1.0f, TEXT("DAttack"));
+		}
+
+	}
+}
+
+void AMyPlayerHunter::AttackSub()
+{
+	if (LongSword == nullptr || State == ECharacterState::Peace)
+	{
+		return;
+	}
+
+	if (State == ECharacterState::Battle)
+	{
+		if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
+		{
+			//공격 코드 실행
+			bIsCanAttack = false;
+			bIsAttacking = true;
+
+			PlayAnimMontage(SubAttack, 1.0f, TEXT("SAttack"));
 		}
 	}
 }
+
 
 
 void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
@@ -312,6 +336,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMyPlayerHunter::StartPickUp);
 
 		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AMyPlayerHunter::Attack);
+
+		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Started, this, &AMyPlayerHunter::AttackSub);
 	}
 
 }

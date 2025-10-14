@@ -63,11 +63,11 @@ void UMyPlayerHunterAnimation::AnimNotify_LS_SheathEnd()
 	PlayerCharacter->bIsSheathWepaon = false;
 }
 
-void UMyPlayerHunterAnimation::AninNotify_LS_AttckEnd()
+void UMyPlayerHunterAnimation::AnimNotify_LS_AttackEnd()
 {
 	AMyPlayerHunter* PlayerCharacter = GetHunter();
 
-	UE_LOG(LogTemp, Display, TEXT("IsThatWorking?"));
+	//UE_LOG(LogTemp, Display, TEXT("IsThatWorking?"));
 	//공격중인 상태 종료.
 	PlayerCharacter->bIsAttacking = false;
 

@@ -30,7 +30,7 @@ public:
 	void AnimNotify_LS_SheathEnd();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon/LongSword/Attack")
-	void AninNotify_LS_AttckEnd();
+	void AnimNotify_LS_AttackEnd();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")

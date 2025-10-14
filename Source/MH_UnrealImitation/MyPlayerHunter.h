@@ -55,6 +55,8 @@ protected:
 
 	void Attack();
 
+	void AttackSub();
+
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
 
@@ -86,6 +88,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Attack;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_SubAttack;
 
 
 public:
@@ -147,6 +152,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DefaultAttack = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* SubAttack = nullptr;
 	
 	
 };
