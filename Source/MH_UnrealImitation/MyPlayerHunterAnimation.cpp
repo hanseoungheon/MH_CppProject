@@ -8,10 +8,7 @@
 
 void UMyPlayerHunterAnimation::AnimNotify_LS_Draw()
 {
-	if (IsDrawingWeapon == false)
-	{
-		UE_LOG(LogTemp, Display, TEXT("IsWorkingNow"));
-		IsDrawingWeapon = true;
+		//UE_LOG(LogTemp, Display, TEXT("IsWorkingNow"));
 		//검을 뽑는다.
 		//그렇다면 이 시점에서 검집에 있는검은 안보이게 검은 보이게.
 
@@ -20,24 +17,62 @@ void UMyPlayerHunterAnimation::AnimNotify_LS_Draw()
 		AMyDummyWeapon* DummyLS = PlayerCharacter->DummyLongSword;
 
 
-		//검을 뽑으니 매고있는검 해제
-		PlayerCharacter->bIsHanging = false;
+		//검을 뽑았으니 발도상태로 전환.
+		PlayerCharacter->SetState(ECharacterState::Battle);
+
 		//그리고 들고있는검 보이게.
 		LS->SetVisibleWeapon();
 		//그리고 매는검 안보이게.
 		DummyLS->SetVisibleDummy();
-		DummyLS->SetVisibleDummy();
-	}
 }
 
 void UMyPlayerHunterAnimation::AnimNotify_LS_DrawEnd()
 {
 	//무기뽑기 종료.
-	IsDrawingWeapon = false;
 	AMyPlayerHunter* PlayerCharacter = GetHunter();
 
-	PlayerCharacter->SetState(ECharacterState::Battle);
+	PlayerCharacter->bIsCanAttack = true; //플레이어가 공격 가능한 상태로 전환.
+	PlayerCharacter->bIsDrawWeapon = false; //플레이어가 검을 뽑고있는상태를 끔.
+}
 
+void UMyPlayerHunterAnimation::AnimNotify_LS_Sheath()
+{
+	//검을 집어넣는다.
+	//그렇다면 이 시점에서 손에 든 검은 보이지 않게.
+
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+	AMyLongSword* LS = PlayerCharacter->LongSword;
+	AMyDummyWeapon* DummyLS = PlayerCharacter->DummyLongSword;
+
+
+	//검을 넣었으니 비전투상태로 전환.
+	PlayerCharacter->SetState(ECharacterState::Peace);
+
+	//그리고 들고있는검 보이게.
+	LS->SetVisibleWeapon();
+	//그리고 매는검 안보이게.
+	DummyLS->SetVisibleDummy();
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_SheathEnd()
+{
+	//납도하기 종료.
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+
+	PlayerCharacter->bIsSheathWepaon = false;
+}
+
+void UMyPlayerHunterAnimation::AninNotify_LS_AttckEnd()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	UE_LOG(LogTemp, Display, TEXT("IsThatWorking?"));
+	//공격중인 상태 종료.
+	PlayerCharacter->bIsAttacking = false;
+
+	//공격 가능한 상태로 전환.
+	PlayerCharacter->bIsCanAttack = true;
 }
 
 AMyPlayerHunter* UMyPlayerHunterAnimation::GetHunter() const

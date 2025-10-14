@@ -107,8 +107,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
 	bool bHasWeapon = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
-	bool bIsHanging = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	bool bIsDrawWeapon = false; //무기를 뽑고있는중인간(이제 bIsHanging에서 처리안하고 Enum으로 처리)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	bool bIsSheathWepaon = false; //무기를 넣고있는 중인가.
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
+	bool bIsAttacking = false; //공격중인지?
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
+	bool bIsCanAttack = true; //공격 가능한 상태인지?
+
 
 
 
@@ -122,13 +132,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float WalkSpeed = 300.0f;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	bool IsBeRun = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
+	float MovingSpeed = 0.0f;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DrawLongSword = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* SheathLongSword = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* DefaultAttack = nullptr;
 	
 	
 };

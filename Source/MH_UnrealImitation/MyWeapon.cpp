@@ -89,11 +89,18 @@ void AMyWeapon::SetVisibleWeapon()
 
 	if (PlayerCharacter != nullptr && PlayerCharacter->bHasWeapon)
 	{
-		bool Trigger = PlayerCharacter->bIsHanging;
-
 		//만약에 무기를 매고있으면 보이지 않게 무기를 들고 있다면 보이게.
-		Trigger ? 
-			WeaponMesh->SetVisibility(false) : WeaponMesh->SetVisibility(true);
+		ECharacterState CharState = PlayerCharacter->GetCharacterState();
+
+		//캐릭터 상태를 가져와서 상태별로 점검.
+		if (CharState == ECharacterState::Peace) //만약 Peace 즉 납도상태면 검이 보이면 안됨.
+		{
+			WeaponMesh->SetVisibility(false);
+		}
+		else if (CharState == ECharacterState::Battle) //만약 Battle 즉 발도상태면 검이 보여야함.
+		{
+			WeaponMesh->SetVisibility(true);
+		}
 	}
 }
 

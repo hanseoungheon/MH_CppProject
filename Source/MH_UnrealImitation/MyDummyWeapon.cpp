@@ -48,9 +48,16 @@ void AMyDummyWeapon::SetVisibleDummy()
 
 	if (PlayerCharacter != nullptr && PlayerCharacter->bHasWeapon)
 	{
-		bool Trigger = PlayerCharacter->bIsHanging;
-		Trigger ? 
-			DummyWeaponMesh->SetVisibility(true) : DummyWeaponMesh->SetVisibility(false);
+		ECharacterState CharState = PlayerCharacter->GetCharacterState();
+
+		if (CharState == ECharacterState::Peace) //만약 납도상태면 칼집에 넣은 검이 보여야함.
+		{
+			DummyWeaponMesh->SetVisibility(true);
+		}
+		else if (CharState == ECharacterState::Battle) //만약 발도상태면 칼집에 넣은 검이 보여선 안됨.
+		{
+			DummyWeaponMesh->SetVisibility(false);
+		}
 	}
 }
 

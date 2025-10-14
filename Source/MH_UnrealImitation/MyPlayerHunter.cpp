@@ -137,25 +137,25 @@ void AMyPlayerHunter::Look(const FInputActionValue& Value)
 
 void AMyPlayerHunter::BeginRun()
 {
-	if (State != ECharacterState::Peace)
+
+	if (State == ECharacterState::Peace)
 	{
-		return;
+		IsBeRun = true;
+		float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+		//달릴시 80% 이동속도 버프
+		GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
+	}
+	else if (bIsSheathWepaon == false && State == ECharacterState::Battle)
+	{
+		bIsSheathWepaon = true;
+		PlayAnimMontage(SheathLongSword, 1.0f, TEXT("Sheath"));
 	}
 
-	IsBeRun = true;
-	float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	
-	//달릴시 80% 이동속도 버프
-	GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 }
 
 void AMyPlayerHunter::StopRun()
 {
-	if (State != ECharacterState::Peace)
-	{
-		return;
-	}
-
 	IsBeRun = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
@@ -166,12 +166,31 @@ void AMyPlayerHunter::Attack()
 	if (LongSword != nullptr)
 	{
 		//태도 무기공격 구현.
-		if (bIsHanging == true)
+		//Todo: 최적화 해보기.
+		if (bIsDrawWeapon == false && State == ECharacterState::Peace)
 		{
-			PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
+			if(MovingSpeed > WalkSpeed)
+			{
+				//달리고 있을때 공격키 누르면 바로 공격이 나가게.
+			}
+			else
+			{
+				bIsDrawWeapon = true; //검을 꺼내는중인 상태로 전환.
+				bIsCanAttack = false; //공격불가능한 상태로 전환.
+				//발도 코드 실행.
+				PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
+			}
+
 		}
-		else
+		else if(State == ECharacterState::Battle)
 		{
+			if (bIsCanAttack == true && bIsAttacking == false) //공격 가능한 상태이며 공격중이 아닐경우.
+			{
+				//공격 코드 실행.
+				bIsCanAttack = false;
+				bIsAttacking = true;
+				PlayAnimMontage(DefaultAttack, 1.0f, TEXT("DAttack"));
+			}
 
 		}
 	}
@@ -208,7 +227,7 @@ void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 		SpawnDummys();
 
 		//메기 활성화.
-		bIsHanging = true;
+		//bIsDrawWeapon = true;
 
 		//이제 Visible설정하자. 그냥 매번 이렇게 불러오는게 맘 편할듯.
 		if (LongSword != nullptr)
@@ -246,6 +265,9 @@ void AMyPlayerHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	MovingSpeed = GetVelocity().Size2D(); // == FVector length XY
+
+
 	//if (LongSword != nullptr)
 	//{
 	//	UE_LOG(LogTemp, Display, TEXT("Not NULL"));
@@ -254,7 +276,6 @@ void AMyPlayerHunter::Tick(float DeltaTime)
 	//{
 	//	UE_LOG(LogTemp, Display, TEXT("Is NULL"));
 	//}
-
 }
 
 // Called to bind functionality to input
@@ -290,7 +311,7 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMyPlayerHunter::StartPickUp);
 
-		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Attack);
+		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AMyPlayerHunter::Attack);
 	}
 
 }
