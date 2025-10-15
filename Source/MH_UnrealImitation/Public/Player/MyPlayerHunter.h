@@ -41,6 +41,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void SetState(const ECharacterState NewState);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void RollingMovemnt();
+
+	UFUNCTION(BlueprintCallable, Category = "Move")
+	void Rolling();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -64,8 +69,8 @@ protected:
 	void Skill_Special_Sub(); //컨트롤키 + 우클릭 (기본)
 
 	void Skill_Speical_Roll(); //컨트롤키 + 스페이스바(기본) -> 태도 특납
-
-	void Rolling(); //구르기<스페이스바>(기본)
+	
+	void StartRolling(); //구르기<스페이스바>(기본)
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
@@ -102,6 +107,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_SubAttack;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Rolling;
+
 
 public:
 
@@ -131,6 +139,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
 	bool bIsAttacking = false; //공격중인지?
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsRolling = false; //구르고 있는 중인지?
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	int32 DefaultAttackCheck;
 
@@ -150,6 +161,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float MovingSpeed = 0.0f;
 
+	UPROPERTY()
+	float CurrentRot; //플레이어의 현재 방향을 정하는데 쓰이는 실수형 변수.
+
+	UPROPERTY()
+	FVector YawRotVector; //플레이어가 바라보는 방향전위를 벡터로 나타낸것.
+
+	UPROPERTY()
+	float RollingSpeed; //구르는 속도.
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DrawLongSword_LS = nullptr;
@@ -162,6 +182,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* SubAttack_LS = nullptr;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/Movement")
+	class UAnimMontage* RollAnim = nullptr;
 	
 };

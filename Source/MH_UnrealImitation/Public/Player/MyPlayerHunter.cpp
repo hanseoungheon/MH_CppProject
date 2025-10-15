@@ -43,8 +43,12 @@ AMyPlayerHunter::AMyPlayerHunter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	DefaultAttackCheck = 0; // �����޺�üũ 0���� �ʱ�ȭ.
-	DefaultAttackCombo = (DefaultAttackCheck % 4) + 1; //�ϴ� �⺻���ݿ� ���̴� �޺��� �ʱ�ȭ.
+	DefaultAttackCheck = 0; // 기본공격시 마다 트리거되서 하나씩 증감되는 변수
+	DefaultAttackCombo = (DefaultAttackCheck % 4) + 1; //어택체크를 계산한 기본공격에 쓰일 어택콤보.
+
+	CurrentRot = 90.0f; //YawRotVector에서 90을 곱하면 정확히 입력값에 따라서 바라보는 방향이 YawRotVector에 저장됨.
+
+	RollingSpeed = 750.0f;
 }
 
 void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
@@ -64,7 +68,7 @@ void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
 
 	else //Trigger == false
 	{
-		if (bHasWeapon == false) //���⸦ ������ ���� �������� ����� SetOwner����ϱ�.
+		if (bHasWeapon == false) //만약 무기를 들고있지 않으면 SetOwner를 nullptr로 설정.(주인해제)
 		{
 			LS->SetOwner(nullptr);
 		}
@@ -120,6 +124,12 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 
 			AddMovementInput(ForwardVector, InputValue.Y);
 		}
+
+		//FVector인 YawRotVector에 90.0f인 CurrentRot에 입력값 축들을 곱해서 입력값에 따라 현재 바라보고있는 값이
+		//방향전위벡터인 YawRotVector에 저장이됨.
+		YawRotVector = FVector(InputValue.X * CurrentRot, InputValue.Y * CurrentRot,0.0f);
+
+		UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 	}
 }
 
@@ -146,7 +156,7 @@ void AMyPlayerHunter::BeginRun()
 		IsBeRun = true;
 		float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
-		//�޸��� 80% �̵��ӵ� ����
+		//달리기시 이동속도 2배.
 		GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 	}
 	else if (bIsSheathWepaon == false && State == ECharacterState::Battle)
@@ -175,18 +185,16 @@ void AMyPlayerHunter::Attack()
 		return;
 	}
 
-	//�µ� ������� ����.
-	//Todo: ����ȭ �غ���.
+	//만약 검을 뽑고있는중이 아니며, 비전투상태일경우. 
 	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
 	{
 		if (MovingSpeed > WalkSpeed)
 		{
-			//�޸��� ������ ����Ű ������ �ٷ� ������ ������.
+			//Todo: 달리면서 어택키를 누를시 즉시 발도하면서 공격.
 		}
 		else
 		{
-			bIsDrawWeapon = true; //���� ���������� ���·� ��ȯ.
-			//�ߵ� �ڵ� ����.
+			bIsDrawWeapon = true; //검을 뽑고있는중으로 변경.
 
 			if (LongSword != nullptr)
 			{
@@ -195,12 +203,11 @@ void AMyPlayerHunter::Attack()
 		}
 
 	}
-	else if (State == ECharacterState::Battle)
+	else if (State == ECharacterState::Battle) //전투상태일경우.
 	{
-		if (bIsAttacking == false) //���� ������ �����̸�(Battle) �������� �ƴҰ��.
+		if (bIsAttacking == false) //전투중(Battle)에 공격중이 아닐경우.
 		{
-			//���� �ڵ� ����.
-			bIsAttacking = true; //�������� ���·� ����
+			bIsAttacking = true; //공격중으로 설정.
 
 			if (LongSword != nullptr)
 			{
@@ -242,10 +249,9 @@ void AMyPlayerHunter::AttackSub()
 
 	if (State == ECharacterState::Battle)
 	{
-		if (bIsAttacking == false) //���� ������ �����̸� �������� �ƴҰ��.
+		if (bIsAttacking == false) //전투상태이고, 공격중이 아닐경우
 		{
-			//���� �ڵ� ����
-			bIsAttacking = true; //�������� ���·� ����.
+			bIsAttacking = true; //공격중 상태로 변경.
 
 			if (LongSword != nullptr)
 			{
@@ -258,24 +264,46 @@ void AMyPlayerHunter::AttackSub()
 	}
 }
 
+void AMyPlayerHunter::StartRolling()
+{
+	if (bIsRolling == false && bIsAttacking == false) //구르고 있는중이 아니고 공격중이 아니라면!
+	{
+		bIsRolling = true;
 
+		PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling"));
+	}
+}
+
+void AMyPlayerHunter::Rolling()
+{
+	//const float Speed = RollingSpeed * GetActorForwardVector()
+
+	//Z축으로 중력의 값이 저장된 flaot 값.
+	//땅에 떠있으면 중력이 적용.
+	const float KeepZ = GetCharacterMovement()->IsMovingOnGround() ? 0.0f 
+		: GetCharacterMovement()->GetGravityZ();
+
+	GetCharacterMovement()->Velocity = (GetActorForwardVector() * RollingSpeed);
+	GetCharacterMovement()->Velocity.Z = KeepZ;
+}
 
 void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 {
 	if (bHasWeapon == false && bHunterCanInteract == true)
 	{
-		//���� ���Ⱑ ���� ���°�, ��ȣ�ۿ��� ������ ���¶��?
+		//무기를 가지고있지 않고, 상호작용 할 수 있는 상태일경우.
 
 		if (LongSword != nullptr)
 		{
 			bHasWeapon = true;
-			//�µ��� �÷��̾�� ����.
+
+			//무기를 붙힘.
 			LongSword->AttachToComponent(GetMesh(),
 				FAttachmentTransformRules::SnapToTargetIncludingScale,SocketName);
 		}
 
 
-		//�µ��� �浹��ü�� ��Ȱ��ȭ��.
+		//태도의 구체 콜리전에 캐스팅.
 		USphereComponent* LongSwordSphereComponent = 
 			Cast<USphereComponent>(LongSword->SphereCollision);
 
@@ -286,13 +314,11 @@ void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 			//LongSword->SphereCollision->SetNotifyRigidBodyCollision(false);
 		}
 
-		//���̹��� Ȱ��ȭ.
+		//더미 무기들 생성.
 		SpawnDummys();
 
-		//�ޱ� Ȱ��ȭ.
-		//bIsDrawWeapon = true;
 
-		//���� Visible��������. �׳� �Ź� �̷��� �ҷ����°� �� ���ҵ�.
+		//무기들 Visible 설정.
 		if (LongSword != nullptr)
 		{
 			LongSword->SetVisibleWeapon();
@@ -317,10 +343,6 @@ void AMyPlayerHunter::StartPickUp()
 		FName LongSwordSocketName = TEXT("LongSword");
 		PickUpTheWeapon(LongSwordSocketName);
 	}
-
-	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
-	//������� ��� �� �ٸ� ���� ������ �ɵ�?
-	//if(ActorHasTag("GreatSword"))...
 }
 
 // Called every frame
@@ -377,6 +399,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AMyPlayerHunter::Attack);
 
 		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Started, this, &AMyPlayerHunter::AttackSub);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Rolling, ETriggerEvent::Triggered, this, &AMyPlayerHunter::StartRolling);
 	}
 
 }
