@@ -2,8 +2,8 @@
 
 
 #include "MyDummyLSHouse.h"
-#include "MyPlayerHunter.h"
 #include "MyLongSword.h"
+#include "Player/MyPlayerHunter.h"
 
 void AMyDummyLSHouse::SetVisibleDummy()
 {

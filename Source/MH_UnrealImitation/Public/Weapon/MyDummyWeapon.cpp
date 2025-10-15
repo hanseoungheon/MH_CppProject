@@ -3,7 +3,7 @@
 
 #include "MyDummyWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "MyPlayerHunter.h"
+#include "Player/MyPlayerHunter.h"
 // Sets default values
 AMyDummyWeapon::AMyDummyWeapon()
 {

@@ -3,8 +3,8 @@
 
 #include "MyPlayerHunterAnimation.h"
 #include "MyPlayerHunter.h"
-#include "MyLongSword.h"
-#include "MyDummyWeapon.h"
+#include "Weapon/MyLongSword.h"
+#include "Weapon/MyDummyWeapon.h"
 
 void UMyPlayerHunterAnimation::AnimNotify_LS_Draw()
 {

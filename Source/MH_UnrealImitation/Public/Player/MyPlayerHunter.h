@@ -49,13 +49,23 @@ protected:
 
 	void Look(const FInputActionValue& Value);
 
-	void BeginRun();
+	void BeginRun(); //달리기 시작/납도
 
-	void StopRun();
+	void StopRun(); //달리기 멈춤
 
-	void Attack();
+	void Attack(); //기본공격 강<왼쪽 마우스>(기본)
 
-	void AttackSub();
+	void AttackSub(); //기본공격 약<오른쪽 마우스>(기본)
+
+	void SkillAttack(); //컨트롤키(기본)
+
+	void Skill_Special(); //컨트롤키 + 왼쪽클릭 (기본)
+
+	void Skill_Special_Sub(); //컨트롤키 + 우클릭 (기본)
+
+	void Skill_Speical_Roll(); //컨트롤키 + 스페이스바(기본) -> 태도 특납
+
+	void Rolling(); //구르기<스페이스바>(기본)
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
@@ -121,6 +131,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Weapon")
 	bool bIsAttacking = false; //공격중인지?
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	int32 DefaultAttackCheck;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	int32 DefaultAttackCombo;
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
@@ -137,16 +152,16 @@ protected:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
-	class UAnimMontage* DrawLongSword = nullptr;
+	class UAnimMontage* DrawLongSword_LS = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
-	class UAnimMontage* SheathLongSword = nullptr;
+	class UAnimMontage* SheathLongSword_LS = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
-	class UAnimMontage* DefaultAttack = nullptr;
+	class UAnimMontage* DefaultAttack_LS = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
-	class UAnimMontage* SubAttack = nullptr;
+	class UAnimMontage* SubAttack_LS = nullptr;
 	
 	
 };

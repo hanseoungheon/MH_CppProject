@@ -5,7 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "MyPlayerHunter.h"
+#include "Player/MyPlayerHunter.h"
 // Sets default values
 AMyWeapon::AMyWeapon()
 {

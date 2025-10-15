@@ -2,9 +2,9 @@
 
 
 #include "MyPlayerHunter.h"
-#include "MyLongSword.h"
-#include "MyDummyWeapon.h"
-#include "MyDummyLSHouse.h"
+#include "Weapon/MyLongSword.h"
+#include "Weapon/MyDummyWeapon.h"
+#include "Weapon/MyDummyLSHouse.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,7 +29,7 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	//WalkSpeed´Â Çì´õ¿¡ ¼±¾ðÇØ ³õÀº Float º¯¼öÀÔ´Ï´Ù.
+	//WalkSpeedï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Float ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	CameraBoom
@@ -42,6 +42,9 @@ AMyPlayerHunter::AMyPlayerHunter()
 		= CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	DefaultAttackCheck = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Þºï¿½Ã¼Å© 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­.
+	DefaultAttackCombo = (DefaultAttackCheck % 4) + 1; //ï¿½Ï´ï¿½ ï¿½âº»ï¿½ï¿½ï¿½Ý¿ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½Þºï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­.
 }
 
 void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
@@ -61,7 +64,7 @@ void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
 
 	else //Trigger == false
 	{
-		if (bHasWeapon == false) //¹«±â¸¦ °¡Áö°í ÀÖÁö ¾ÊÀ»¶§¸¸ ¹þ¾î³¯¶§ SetOwnerÃë¼ÒÇÏ±â.
+		if (bHasWeapon == false) //ï¿½ï¿½ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î³¯ï¿½ï¿½ SetOwnerï¿½ï¿½ï¿½ï¿½Ï±ï¿½.
 		{
 			LS->SetOwner(nullptr);
 		}
@@ -143,13 +146,17 @@ void AMyPlayerHunter::BeginRun()
 		IsBeRun = true;
 		float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
-		//´Þ¸±½Ã 80% ÀÌµ¿¼Óµµ ¹öÇÁ
+		//ï¿½Þ¸ï¿½ï¿½ï¿½ 80% ï¿½Ìµï¿½ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 		GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 	}
 	else if (bIsSheathWepaon == false && State == ECharacterState::Battle)
 	{
 		bIsSheathWepaon = true;
-		PlayAnimMontage(SheathLongSword, 1.0f, TEXT("Sheath"));
+
+		if (LongSword != nullptr)
+		{
+			PlayAnimMontage(SheathLongSword_LS, 1.0f, TEXT("Sheath"));
+		}
 	}
 
 }
@@ -168,29 +175,60 @@ void AMyPlayerHunter::Attack()
 		return;
 	}
 
-	//ÅÂµµ ¹«±â°ø°Ý ±¸Çö.
-	//Todo: ÃÖÀûÈ­ ÇØº¸±â.
+	//ï¿½Âµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+	//Todo: ï¿½ï¿½ï¿½ï¿½È­ ï¿½Øºï¿½ï¿½ï¿½.
 	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
 	{
 		if (MovingSpeed > WalkSpeed)
 		{
-			//´Þ¸®°í ÀÖÀ»¶§ °ø°ÝÅ° ´©¸£¸é ¹Ù·Î °ø°ÝÀÌ ³ª°¡°Ô.
+			//ï¿½Þ¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 		}
 		else
 		{
-			bIsDrawWeapon = true; //°ËÀ» ²¨³»´ÂÁßÀÎ »óÅÂ·Î ÀüÈ¯.
-			//¹ßµµ ÄÚµå ½ÇÇà.
-			PlayAnimMontage(DrawLongSword, 1.0f, TEXT("Draw"));
+			bIsDrawWeapon = true; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½È¯.
+			//ï¿½ßµï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½.
+
+			if (LongSword != nullptr)
+			{
+				PlayAnimMontage(DrawLongSword_LS, 1.0f, TEXT("Draw"));
+			}
 		}
 
 	}
 	else if (State == ECharacterState::Battle)
 	{
-		if (bIsAttacking == false) //°ø°Ý °¡´ÉÇÑ »óÅÂÀÌ¸ç(Battle) °ø°ÝÁßÀÌ ¾Æ´Ò°æ¿ì.
+		if (bIsAttacking == false) //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½(Battle) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ò°ï¿½ï¿½.
 		{
-			//°ø°Ý ÄÚµå ½ÇÇà.
-			bIsAttacking = true; //°ø°ÝÁßÀÎ »óÅÂ·Î º¯°æ
-			PlayAnimMontage(DefaultAttack, 1.0f, TEXT("DAttack"));
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½.
+			bIsAttacking = true; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½
+
+			if (LongSword != nullptr)
+			{
+				switch (DefaultAttackCombo)
+				{
+				case 1:
+					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_1"));
+					break;
+
+				case 2:
+					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_1"));
+					break;
+
+				case 3:
+					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_2"));
+					break;
+
+				case 4:
+					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_1"));
+					break;
+
+				default:
+					break;
+				}
+
+				DefaultAttackCheck++;
+				DefaultAttackCombo = (DefaultAttackCheck % 4) + 1;
+			}
 		}
 	}
 }
@@ -204,12 +242,18 @@ void AMyPlayerHunter::AttackSub()
 
 	if (State == ECharacterState::Battle)
 	{
-		if (bIsAttacking == false) //°ø°Ý °¡´ÉÇÑ »óÅÂÀÌ¸ç °ø°ÝÁßÀÌ ¾Æ´Ò°æ¿ì.
+		if (bIsAttacking == false) //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ò°ï¿½ï¿½.
 		{
-			//°ø°Ý ÄÚµå ½ÇÇà
-			bIsAttacking = true; //°ø°ÝÁßÀÎ »óÅÂ·Î º¯°æ.
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½
+			bIsAttacking = true; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
-			PlayAnimMontage(SubAttack, 1.0f, TEXT("SAttack"));
+			if (LongSword != nullptr)
+			{
+				PlayAnimMontage(SubAttack_LS, 1.0f, TEXT("SAttack"));
+
+				DefaultAttackCheck = 2;
+				DefaultAttackCombo = (DefaultAttackCheck % 4) + 1;
+			}
 		}
 	}
 }
@@ -220,18 +264,18 @@ void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 {
 	if (bHasWeapon == false && bHunterCanInteract == true)
 	{
-		//¸¸¾à ¹«±â°¡ ¾ø´Â »óÅÂ°í, »óÈ£ÀÛ¿ëÀÌ °¡´ÉÇÑ »óÅÂ¶ó¸é?
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½, ï¿½ï¿½È£ï¿½Û¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¶ï¿½ï¿½?
 
 		if (LongSword != nullptr)
 		{
 			bHasWeapon = true;
-			//ÅÂµµ¸¦ ÇÃ·¹ÀÌ¾î¿¡°Ô ºÙÈû.
+			//ï¿½Âµï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 			LongSword->AttachToComponent(GetMesh(),
 				FAttachmentTransformRules::SnapToTargetIncludingScale,SocketName);
 		}
 
 
-		//ÅÂµµÀÇ Ãæµ¹±¸Ã¼¸¦ ºñÈ°¼ºÈ­ÇÔ.
+		//ï¿½Âµï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½.
 		USphereComponent* LongSwordSphereComponent = 
 			Cast<USphereComponent>(LongSword->SphereCollision);
 
@@ -242,13 +286,13 @@ void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)
 			//LongSword->SphereCollision->SetNotifyRigidBodyCollision(false);
 		}
 
-		//´õ¹Ì¹«±â È°¼ºÈ­.
+		//ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­.
 		SpawnDummys();
 
-		//¸Þ±â È°¼ºÈ­.
+		//ï¿½Þ±ï¿½ È°ï¿½ï¿½È­.
 		//bIsDrawWeapon = true;
 
-		//ÀÌÁ¦ Visible¼³Á¤ÇÏÀÚ. ±×³É ¸Å¹ø ÀÌ·¸°Ô ºÒ·¯¿À´Â°Ô ¸¾ ÆíÇÒµí.
+		//ï¿½ï¿½ï¿½ï¿½ Visibleï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½×³ï¿½ ï¿½Å¹ï¿½ ï¿½Ì·ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½Â°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Òµï¿½.
 		if (LongSword != nullptr)
 		{
 			LongSword->SetVisibleWeapon();
@@ -275,7 +319,7 @@ void AMyPlayerHunter::StartPickUp()
 	}
 
 	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
-	//¿©±âºÎÅÍ ´ë°Ë µî ´Ù¸¥ ¹«±â ³ÖÀ¸¸é µÉµí?
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Éµï¿½?
 	//if(ActorHasTag("GreatSword"))...
 }
 

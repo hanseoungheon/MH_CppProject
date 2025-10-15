@@ -2,7 +2,7 @@
 
 
 #include "MyLongSword.h"
-#include "MyPlayerHunter.h"
+#include "Player/MyPlayerHunter.h"
 
 void AMyLongSword::BeginPlay()
 {
