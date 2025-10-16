@@ -281,6 +281,34 @@ void AMyPlayerHunter::StartRolling()
 			bIsRolling = true;
 			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
 		}
+		else if (YawRotVector.Y == -90.0f //만약에 움직임 방향전위가 뒤거나, 뒤왼/뒤오 동시에일 경우 뒷구르기 시전.
+			|| YawRotVector.Y == -90.0f && YawRotVector.X == 90.0f
+			|| YawRotVector.Y == -90.0f && YawRotVector.X == -90.0f)
+		{
+			bIsRolling = true;
+			//여기서 각도 변경.
+
+			//각도 변경해주는 함수.
+			RollRotationChange();
+
+			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
+		}
+		else if (YawRotVector.X == -90.0f && YawRotVector.Y == 0.0f) //만약 움직임 방향전위가 왼쪽이고 앞뒤 방향전위가 0일경우
+		{
+			bIsRolling = true;
+			
+			RollRotationChange();
+
+			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
+		}
+		else if (YawRotVector.X == 90.0f && YawRotVector.Y == 0.0f) //만약 움직임 방향전위가 오른쪽이고 앞뒤 방향전위가 0일경우
+		{
+			bIsRolling = true;
+			
+			RollRotationChange();
+
+			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
+		}
 	}
 }
 
@@ -359,6 +387,22 @@ void AMyPlayerHunter::StartPickUp()
 		FName LongSwordSocketName = TEXT("LongSword");
 		PickUpTheWeapon(LongSwordSocketName);
 	}
+}
+
+void AMyPlayerHunter::RollRotationChange()
+{
+	//현재 카메라의 각도를 가져와서 저장.
+	FRotator CurrentCamRot = GetControlRotation();
+
+	//회전할 각도의 Pitch(Y값)
+	float NewPitch = YawRotVector.X + CurrentCamRot.Pitch;
+	//회전할 각도의 Yaw(Z값)
+	float NewYaw = YawRotVector.Y + CurrentCamRot.Yaw;
+
+	//새로운 각도
+	FRotator NewRot = FRotator(CurrentCamRot.Roll, NewPitch, NewYaw);
+
+	SetActorRotation(NewRot);
 }
 
 // Called every frame

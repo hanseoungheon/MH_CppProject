@@ -13,3 +13,12 @@ enum class ECharacterState : uint8
     Roll = 4   UMETA(DisplayName = "Roll"),
     Dead = 5   UMETA(DisplayName = "Dead"),
 };
+
+UENUM()
+enum class ECharacterDirection : uint8
+{
+    Front = 0  UMETA(DisplayName = "Front"),
+    Back = 1   UMETA(DisplayName = "Back"),
+    Left = 2   UMETA(DisplayName = "Left"),
+    Right = 3 UMETA(DisplayName = "Right"),
+};
