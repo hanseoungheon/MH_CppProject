@@ -36,12 +36,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnLongSwordAndHouse();
 
-	UFUNCTION(BlueprintCallable, Category = "State")
-	ECharacterState GetCharacterState() const;
-
-	UFUNCTION(BlueprintCallable, Category = "State")
-	void SetState(const ECharacterState NewState);
-
 	UFUNCTION(BlueprintCallable, Category = "Move")
 	void OnRollingUpdate(float Value);
 
@@ -85,6 +79,34 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	//Getters & Setters
+	UFUNCTION(BlueprintCallable, Category = "State")
+	ECharacterState GetCharacterState() const
+	{
+		return State;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "State")
+	void SetState(const ECharacterState NewState)
+	{
+		State = NewState;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "State")
+	ECharacterState GetPrevState() const
+	{
+		return PrevState;
+	}
+	
+	UFUNCTION(BlueprintCallable, Category = "State")
+	void SetPrevState()
+	{
+		//PrevState에 State를 저장에서 이전 프레임/동작에 사용된 State로 사용.
+		PrevState = State;
+	}
+
+public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputMappingContext* IMC_Player;
@@ -152,6 +174,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	ECharacterState State = ECharacterState::Peace;
+
+	ECharacterState PrevState = ECharacterState::Peace;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	float WalkSpeed = 300.0f;

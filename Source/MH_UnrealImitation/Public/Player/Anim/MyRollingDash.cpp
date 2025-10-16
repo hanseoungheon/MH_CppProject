@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/MyRollingDash.h"
-#include "MyPlayerHunter.h"
+#include "MyRollingDash.h"
+#include "Player/MyPlayerHunter.h"
 
 void UMyRollingDash::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, 
 	const FAnimNotifyEventReference& EventReference)
@@ -23,7 +23,7 @@ void UMyRollingDash::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 
 	AMyPlayerHunter* PlayerCharacter = Cast<AMyPlayerHunter>(MeshComp->GetOwner());
 
-	if (PlayerCharacter->RollingTimeLine != nullptr)
+	if (PlayerCharacter!= nullptr && PlayerCharacter->RollingTimeLine != nullptr)
 	{
 		UE_LOG(LogTemp, Display, TEXT("이거 동작하는지 테스트"));
 		PlayerCharacter->

@@ -50,7 +50,7 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	CurrentRot = 90.0f; //YawRotVector에서 90을 곱하면 정확히 입력값에 따라서 바라보는 방향이 YawRotVector에 저장됨.
 
-	RollingSpeed = 750.0f;
+	RollingSpeed = 900.0f;
 
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
 
@@ -107,16 +107,6 @@ void AMyPlayerHunter::SpawnDummys()
 	}
 }
 
-ECharacterState AMyPlayerHunter::GetCharacterState() const
-{
-	return State;
-}
-
-void AMyPlayerHunter::SetState(const ECharacterState NewState)
-{
-	State = NewState;
-}
-
 void AMyPlayerHunter::Move(const FInputActionValue& Value)
 {
 	FVector2D InputValue = Value.Get<FVector2D>();
@@ -145,7 +135,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 		//방향전위벡터인 YawRotVector에 저장이됨.
 		YawRotVector = FVector(InputValue.X * CurrentRot, InputValue.Y * CurrentRot,0.0f);
 
-		//UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
+		UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 	}
 }
 
@@ -284,9 +274,13 @@ void AMyPlayerHunter::StartRolling()
 {
 	if (bIsRolling == false && bIsAttacking == false) //구르고 있는중이 아니고 공격중이 아니라면!
 	{
-		bIsRolling = true;
-
-		PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling"));
+		if (YawRotVector.Y == 90.0f //만약에 움직임 방향전위가 앞이거나, 앞왼/앞오 동시에 일경우 앞구르기 시전. 
+			|| YawRotVector.Y == 90.0f && YawRotVector.X == 90.0f
+			|| YawRotVector.Y == 90.0f && YawRotVector.X == -90.0f)
+		{
+			bIsRolling = true;
+			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
+		}
 	}
 }
 

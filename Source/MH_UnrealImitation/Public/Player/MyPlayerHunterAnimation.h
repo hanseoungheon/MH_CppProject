@@ -35,6 +35,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	ECharacterState StateAnim = ECharacterState::Peace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	ECharacterState PrevStateAnim = ECharacterState::Peace;
 private:
 	class AMyPlayerHunter* GetHunter() const;
 
