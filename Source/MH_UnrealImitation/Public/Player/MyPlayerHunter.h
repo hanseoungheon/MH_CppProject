@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/TimelineComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "MyCharacterState.h"
@@ -41,8 +42,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	void SetState(const ECharacterState NewState);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void RollingMovemnt();
+	UFUNCTION(BlueprintCallable, Category = "Move")
+	void OnRollingUpdate(float Value);
 
 	UFUNCTION(BlueprintCallable, Category = "Move")
 	void Rolling();
@@ -185,5 +186,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/Movement")
 	class UAnimMontage* RollAnim = nullptr;
+
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* RollingTimeLine = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UCurveFloat* RollingCurve = nullptr;
+		
+protected:
+	FOnTimelineFloat RollingInterpFunction;
+
+	FOnTimelineEvent RollingFinishedFunction;
+
 	
 };

@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TimelineComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
@@ -29,9 +30,10 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	//WalkSpeed�� ����� ������ ���� Float �����Դϴ�.
+	//WalkSpeed를 통해 캐릭터의 기본 이동속도 설정.
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
+	//카메라 설정.
 	CameraBoom
 		= CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -49,8 +51,30 @@ AMyPlayerHunter::AMyPlayerHunter()
 	CurrentRot = 90.0f; //YawRotVector에서 90을 곱하면 정확히 입력값에 따라서 바라보는 방향이 YawRotVector에 저장됨.
 
 	RollingSpeed = 750.0f;
+
+	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
+
 }
 
+// Called when the game starts or when spawned
+void AMyPlayerHunter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (RollingCurve != nullptr)
+	{
+		RollingInterpFunction.BindUFunction(this, FName("OnRollingUpdate"));
+
+		RollingTimeLine->AddInterpFloat(RollingCurve, RollingInterpFunction);
+
+		RollingTimeLine->SetLooping(false);
+		RollingTimeLine->SetPlayRate(1.0f);
+
+		//항상 시작부분부터 시작.
+		//RollingTimeLine->PlayFromStart();
+	}
+}
+	
 void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
 {
 	AMyLongSword* LS = Cast<AMyLongSword>(WeaponActor);
@@ -93,14 +117,6 @@ void AMyPlayerHunter::SetState(const ECharacterState NewState)
 	State = NewState;
 }
 
-
-// Called when the game starts or when spawned
-void AMyPlayerHunter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
 void AMyPlayerHunter::Move(const FInputActionValue& Value)
 {
 	FVector2D InputValue = Value.Get<FVector2D>();
@@ -129,7 +145,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 		//방향전위벡터인 YawRotVector에 저장이됨.
 		YawRotVector = FVector(InputValue.X * CurrentRot, InputValue.Y * CurrentRot,0.0f);
 
-		UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
+		//UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 	}
 }
 
@@ -272,6 +288,12 @@ void AMyPlayerHunter::StartRolling()
 
 		PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling"));
 	}
+}
+
+void AMyPlayerHunter::OnRollingUpdate(float Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("동작하는지 테스트."));
+	Rolling();
 }
 
 void AMyPlayerHunter::Rolling()
