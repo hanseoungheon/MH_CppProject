@@ -20,6 +20,16 @@ enum class ELongSwordLevel : uint8
 	LSLevel3 UMETA(DisPlayName = "LSLevel3"),
 };
 
+//태도 기인베기 동작이 몇단계인지
+UENUM()
+enum class EKiinAttackLevel : uint8
+{
+	KIINLevel1 UMETA(DisplayName = "KIINLevel1"),
+	KIINLevel2 UMETA(DisplayName = "KIINLevel2"),
+	KIINLevel3 UMETA(DisplayName = "KIINLevel3"),
+	KIINLevel4 UMETA(DisplayName = "KIINLevel4"),
+};
+
 UCLASS()
 class MH_UNREALIMITATION_API AMyLongSword : public AMyWeapon
 {
@@ -40,7 +50,10 @@ protected:
 	virtual void IsEndOverlapToSphere(AActor* OtherActor) override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
-	ELongSwordLevel KiinLevel = ELongSwordLevel::LSLevel0;
+	ELongSwordLevel KiinLevel = ELongSwordLevel::LSLevel0; //기인레벨
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
+	EKiinAttackLevel KiinSkillLevel = EKiinAttackLevel::KIINLevel1; //기인베기의 단계레벨
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
 	bool bIsIai;

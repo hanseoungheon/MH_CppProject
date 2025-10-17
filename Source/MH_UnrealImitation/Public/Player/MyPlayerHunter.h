@@ -135,6 +135,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Rolling;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Skill;
+
 
 public:
 
@@ -205,6 +208,9 @@ public:
 	class UAnimMontage* SheathLongSword_LS = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* SheathWalkLongSwrod_LS = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DefaultAttack_LS = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
@@ -212,6 +218,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/Movement")
 	class UAnimMontage* RollAnim = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* KiinAttck_LS = nullptr;
+
 
 
 public:

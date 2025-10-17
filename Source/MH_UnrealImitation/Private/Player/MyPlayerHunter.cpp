@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyPlayerHunter.h"
+#include "Player/MyPlayerHunter.h"
 #include "Weapon/MyLongSword.h"
 #include "Weapon/MyDummyWeapon.h"
 #include "Weapon/MyDummyLSHouse.h"
@@ -159,6 +159,7 @@ void AMyPlayerHunter::BeginRun()
 
 	if (State == ECharacterState::Peace)
 	{
+		//발도상태에서 달리기시 
 		IsBeRun = true;
 		float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
@@ -171,7 +172,16 @@ void AMyPlayerHunter::BeginRun()
 
 		if (LongSword != nullptr)
 		{
-			PlayAnimMontage(SheathLongSword_LS, 1.0f, TEXT("Sheath"));
+			//달리고 있는상태에서 넣는동작 추가해야할듯?
+			if (MovingSpeed == 0.0f) //움직임이 없을 시.
+			{
+				//그냥 자동으로 움직이게 하는것도 낫배드.
+				PlayAnimMontage(SheathLongSword_LS, 1.0f, TEXT("Sheath"));
+			}
+			else
+			{
+				PlayAnimMontage(SheathWalkLongSwrod_LS, 1.0f, TEXT("SheathWalk"));
+			}
 		}
 	}
 
@@ -183,14 +193,8 @@ void AMyPlayerHunter::StopRun()
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
-void AMyPlayerHunter::Attack()
+void AMyPlayerHunter::Attack()	
 {
-	//UE_LOG(LogTemp, Display, TEXT("Is Working"));
-	if (LongSword == nullptr)
-	{
-		return;
-	}
-
 	//만약 검을 뽑고있는중이 아니며, 비전투상태일경우. 
 	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
 	{
@@ -248,7 +252,7 @@ void AMyPlayerHunter::Attack()
 
 void AMyPlayerHunter::AttackSub()
 {
-	if (LongSword == nullptr || State == ECharacterState::Peace)
+	if (State == ECharacterState::Peace)
 	{
 		return;
 	}
@@ -265,6 +269,53 @@ void AMyPlayerHunter::AttackSub()
 
 				DefaultAttackCheck = 2;
 				DefaultAttackCombo = (DefaultAttackCheck % 4) + 1;
+			}
+		}
+	}
+}
+
+void AMyPlayerHunter::SkillAttack()
+{
+	if (State == ECharacterState::Peace)
+	{
+		return;
+	}
+
+	if (State == ECharacterState::Battle)
+	{
+		if (bIsAttacking == false)
+		{
+			bIsAttacking = true;
+
+			if (LongSword != nullptr)
+			{
+				//기인베기 실행.
+
+				//현재 기인베기공격이 어떤 단계인지 가져옴.
+				EKiinAttackLevel LSKiinAttackLevel = LongSword->KiinSkillLevel;
+
+				switch (LSKiinAttackLevel) //스위치를 통해 실행.
+				{
+				case EKiinAttackLevel::KIINLevel1: //기인레벨이 1이면
+					LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel2;//기인레벨2으로 바꿈
+					PlayAnimMontage(KiinAttck_LS, 1.0f, TEXT("Kiin1"));
+					break;
+
+				case EKiinAttackLevel::KIINLevel2: //기인레벨이 2이면
+					LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel3; //기인레벨 3으로 바꿈
+					PlayAnimMontage(KiinAttck_LS, 1.0f, TEXT("Kiin2"));
+					break;
+
+				case EKiinAttackLevel::KIINLevel3:
+					LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel4;
+					PlayAnimMontage(KiinAttck_LS, 1.0f, TEXT("Kiin3"));
+					break;
+
+				case EKiinAttackLevel::KIINLevel4:
+					LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel1;
+					PlayAnimMontage(KiinAttck_LS, 1.0f, TEXT("Kiin4"));
+					break;
+				}
 			}
 		}
 	}
@@ -461,6 +512,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Started, this, &AMyPlayerHunter::AttackSub);
 
 		EnhancedPlayerInputComponent->BindAction(IA_Rolling, ETriggerEvent::Triggered, this, &AMyPlayerHunter::StartRolling);
+
+		EnhancedPlayerInputComponent->BindAction(IA_Skill, ETriggerEvent::Triggered, this, &AMyPlayerHunter::SkillAttack);
 	}
 
 }
