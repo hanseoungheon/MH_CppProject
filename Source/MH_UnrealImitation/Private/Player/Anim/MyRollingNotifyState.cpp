@@ -2,7 +2,7 @@
 
 
 #include "Anim/MyRollingNotifyState.h"
-#include "Player/MyPlayerHunter.h"
+#include "MyPlayerHunter.h"
 
 void UMyRollingNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)

@@ -50,9 +50,15 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	CurrentRot = 90.0f; //YawRotVector에서 90을 곱하면 정확히 입력값에 따라서 바라보는 방향이 YawRotVector에 저장됨.
 
-	RollingSpeed = 900.0f;
+	RollingSpeed = 900.0f; //구르기 속도
 
+	KiinDashPower = 500; //기인 돌진 거리.
+
+	TimeLinePrev = 0.0f; //타임라인 체크 변수 초기화.
+
+	//타임라인들 생성.
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
+	KiinDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("KiinDashTimeLine"));
 
 }
 
@@ -64,7 +70,6 @@ void AMyPlayerHunter::BeginPlay()
 	if (RollingCurve != nullptr)
 	{
 		RollingInterpFunction.BindUFunction(this, FName("OnRollingUpdate"));
-
 		RollingTimeLine->AddInterpFloat(RollingCurve, RollingInterpFunction);
 
 		RollingTimeLine->SetLooping(false);
@@ -72,6 +77,19 @@ void AMyPlayerHunter::BeginPlay()
 
 		//항상 시작부분부터 시작.
 		//RollingTimeLine->PlayFromStart();
+	}
+
+	if (KiinDashTimeLine != nullptr)
+	{
+		KiinDashInterpFunction.BindUFunction(this, FName("DashToTimeLine_Kiin"));
+		KiinDashTimeLine->AddInterpFloat(KiinDashCurve, KiinDashInterpFunction);
+
+		KiinDashFinishedFunction.BindUFunction(this, FName("DashEndToTimeLine"));
+		KiinDashTimeLine->SetTimelineFinishedFunc(KiinDashFinishedFunction);
+
+
+		KiinDashTimeLine->SetLooping(false);
+		KiinDashTimeLine->SetPlayRate(1.0f);
 	}
 }
 	
@@ -115,7 +133,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 	{
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 
-		if (InputValue.X != 0.0f)
+		if (InputValue.X != 0.0f /* && bIsAttacking == false*/) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
 		{
 			const FVector RightDirection =
 				UKismetMathLibrary::GetRightVector(YawRotation);
@@ -123,7 +141,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 			AddMovementInput(RightDirection, InputValue.X);
 		}
 
-		if (InputValue.Y != 0.0f)
+		if (InputValue.Y != 0.0f /*&& bIsAttacking == false*/) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
 		{
 			const FVector ForwardVector =
 				YawRotation.Vector();
@@ -135,7 +153,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 		//방향전위벡터인 YawRotVector에 저장이됨.
 		YawRotVector = FVector(InputValue.X * CurrentRot, InputValue.Y * CurrentRot,0.0f);
 
-		UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
+		//UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 	}
 }
 
@@ -380,6 +398,26 @@ void AMyPlayerHunter::Rolling()
 
 	GetCharacterMovement()->Velocity = (GetActorForwardVector() * RollingSpeed);
 	GetCharacterMovement()->Velocity.Z = KeepZ;
+}
+
+void AMyPlayerHunter::DashToTimeLine_Kiin(float TimeLineValue)
+{
+	FVector DashLocation;
+
+	float CurrentTimePrev = TimeLineValue - TimeLinePrev;
+
+	CurrentTimePrev = CurrentTimePrev * KiinDashPower;
+
+	DashLocation = GetActorForwardVector() * CurrentTimePrev;
+
+	AddActorWorldOffset(DashLocation, true);
+
+	TimeLinePrev = TimeLineValue;
+}
+
+void AMyPlayerHunter::DashEndToTimeLine()
+{
+	TimeLinePrev = 0.0f;
 }
 
 void AMyPlayerHunter::PickUpTheWeapon(FName SocketName)

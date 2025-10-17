@@ -41,6 +41,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Move")
 	void Rolling();
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashToTimeLine_Kiin(float TimeLineValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashEndToTimeLine();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -200,6 +206,12 @@ protected:
 	UPROPERTY()
 	float RollingSpeed; //구르는 속도.
 
+	UPROPERTY()
+	float KiinDashPower;
+
+	UPROPERTY()
+	float TimeLinePrev; //타임라인 타이머용 변수.
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DrawLongSword_LS = nullptr;
@@ -225,16 +237,36 @@ public:
 
 
 public:
+	//구르기 타임라인.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
 	UTimelineComponent* RollingTimeLine = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
 	UCurveFloat* RollingCurve = nullptr;
+
+
+
+
+	//마지막 기인 돌진 타임라인.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* KiinDashTimeLine = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UCurveFloat* KiinDashCurve = nullptr;
 		
 protected:
+	//구르기 타임라인 변수.
+	UPROPERTY(EditAnywhere, Category = "TimeLine")
 	FOnTimelineFloat RollingInterpFunction;
 
+	UPROPERTY(EditAnywhere, Category = "TimeLine")
 	FOnTimelineEvent RollingFinishedFunction;
 
-	
+
+
+	//기인 마지막 대쉬 타임라인 변수.
+	UPROPERTY(EditAnywhere, Category = "TimeLine")
+	FOnTimelineFloat KiinDashInterpFunction;
+	UPROPERTY(EditAnywhere, Category = "TimeLine")
+	FOnTimelineEvent KiinDashFinishedFunction;
 };
