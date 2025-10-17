@@ -52,13 +52,12 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	RollingSpeed = 900.0f; //구르기 속도
 
-	KiinDashPower = 500; //기인 돌진 거리.
-
 	TimeLinePrev = 0.0f; //타임라인 체크 변수 초기화.
 
 	//타임라인들 생성.
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
 	KiinDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("KiinDashTimeLine"));
+	GanpaDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("GanpaDashTimeLine"));
 
 }
 
@@ -67,8 +66,11 @@ void AMyPlayerHunter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//구르기 타임라인 설정.
 	if (RollingCurve != nullptr)
 	{
+		FOnTimelineFloat RollingInterpFunction;
+
 		RollingInterpFunction.BindUFunction(this, FName("OnRollingUpdate"));
 		RollingTimeLine->AddInterpFloat(RollingCurve, RollingInterpFunction);
 
@@ -79,17 +81,36 @@ void AMyPlayerHunter::BeginPlay()
 		//RollingTimeLine->PlayFromStart();
 	}
 
+	//기인베기 돌진 타임라인 설정.
 	if (KiinDashTimeLine != nullptr)
 	{
-		KiinDashInterpFunction.BindUFunction(this, FName("DashToTimeLine_Kiin"));
+		FOnTimelineFloat KiinDashInterpFunction;
+		FOnTimelineEvent KiinDashFinishedFunction;
+
+		KiinDashInterpFunction.BindUFunction(this, FName("DashToKiin"));
 		KiinDashTimeLine->AddInterpFloat(KiinDashCurve, KiinDashInterpFunction);
 
 		KiinDashFinishedFunction.BindUFunction(this, FName("DashEndToTimeLine"));
 		KiinDashTimeLine->SetTimelineFinishedFunc(KiinDashFinishedFunction);
 
-
 		KiinDashTimeLine->SetLooping(false);
 		KiinDashTimeLine->SetPlayRate(1.0f);
+	}
+
+	//간파베기 돌진 타임라인 설정.
+	if (GanpaDashTimeLine != nullptr)
+	{
+		FOnTimelineFloat GanpaDashInterpFunction;
+		FOnTimelineEvent GanpaDashFinishedFunction;
+
+		GanpaDashInterpFunction.BindUFunction(this, FName("DashToGanpa"));
+		GanpaDashTimeLine->AddInterpFloat(GanpaDashCurve, GanpaDashInterpFunction);
+
+		GanpaDashFinishedFunction.BindUFunction(this, FName("DashEndToTimeLine"));
+		GanpaDashTimeLine->SetTimelineFinishedFunc(GanpaDashFinishedFunction);
+
+		GanpaDashTimeLine->SetLooping(false);
+		GanpaDashTimeLine->SetPlayRate(1.0f);
 	}
 }
 	
@@ -339,6 +360,26 @@ void AMyPlayerHunter::SkillAttack()
 	}
 }
 
+void AMyPlayerHunter::Skill_Special_Sub()
+{
+	UE_LOG(LogTemp, Display, TEXT("간파베기 테스트."));
+	if (State == ECharacterState::Peace || State == ECharacterState::Dead)
+	{
+		return;
+	}
+	
+	if (State == ECharacterState::Battle)
+	{
+		if (bIsAttacking == false)
+		{
+			bIsAttacking = true;
+			PlayAnimMontage(Ganpa_Ls, 1.0f, TEXT("Parring"));
+
+			LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel4;
+		}
+	}
+}
+
 void AMyPlayerHunter::StartRolling()
 {
 	if (bIsRolling == false && bIsAttacking == false) //구르고 있는중이 아니고 공격중이 아니라면!
@@ -383,7 +424,7 @@ void AMyPlayerHunter::StartRolling()
 
 void AMyPlayerHunter::OnRollingUpdate(float Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("동작하는지 테스트."));
+	//UE_LOG(LogTemp, Log, TEXT("동작하는지 테스트."));
 	Rolling();
 }
 
@@ -400,19 +441,33 @@ void AMyPlayerHunter::Rolling()
 	GetCharacterMovement()->Velocity.Z = KeepZ;
 }
 
-void AMyPlayerHunter::DashToTimeLine_Kiin(float TimeLineValue)
+
+
+void AMyPlayerHunter::DashToTimeLine(float TimeLineValue, float DashSpeed)
 {
 	FVector DashLocation;
 
 	float CurrentTimePrev = TimeLineValue - TimeLinePrev;
 
-	CurrentTimePrev = CurrentTimePrev * KiinDashPower;
+	CurrentTimePrev = CurrentTimePrev * DashSpeed;
 
 	DashLocation = GetActorForwardVector() * CurrentTimePrev;
 
 	AddActorWorldOffset(DashLocation, true);
 
 	TimeLinePrev = TimeLineValue;
+}
+
+void AMyPlayerHunter::DashToKiin(float TimeLineValue)
+{
+	float KiinDashPower = 500.0f;
+	DashToTimeLine(TimeLineValue, KiinDashPower);
+}
+
+void AMyPlayerHunter::DashToGanpa(float TimeLineValue)
+{
+	float GanpaDashPower = 400.0f;
+	DashToTimeLine(TimeLineValue, GanpaDashPower);
 }
 
 void AMyPlayerHunter::DashEndToTimeLine()
@@ -535,23 +590,29 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		}
 		ensureMsgf(IA_Interact, TEXT("IA_Interact is NULL"));
 
+
+
+		//움직임.
 		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Move);
-
+		//마우스로 시선움직이기.
 		EnhancedPlayerInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Look);
-
+		//달리기 시작
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Started, this, &AMyPlayerHunter::BeginRun);
-
+		//달리기 종료
 		EnhancedPlayerInputComponent->BindAction(IA_Run, ETriggerEvent::Completed, this, &AMyPlayerHunter::StopRun);
-
+		//상호작용키
 		EnhancedPlayerInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMyPlayerHunter::StartPickUp);
-
-		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AMyPlayerHunter::Attack);
-
-		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Started, this, &AMyPlayerHunter::AttackSub);
-
+		//구르기
 		EnhancedPlayerInputComponent->BindAction(IA_Rolling, ETriggerEvent::Triggered, this, &AMyPlayerHunter::StartRolling);
 
+		//강공격키 
+		EnhancedPlayerInputComponent->BindAction(IA_Attack, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Attack);
+		//약공격키
+		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Triggered, this, &AMyPlayerHunter::AttackSub);
+		//스킬사용(태도: 기인베기)
 		EnhancedPlayerInputComponent->BindAction(IA_Skill, ETriggerEvent::Triggered, this, &AMyPlayerHunter::SkillAttack);
+		//
+		EnhancedPlayerInputComponent->BindAction(IA_Skill_Special_Sub, ETriggerEvent::Started, this, &AMyPlayerHunter::Skill_Special_Sub);
 	}
 
 }

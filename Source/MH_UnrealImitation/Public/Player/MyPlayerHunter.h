@@ -43,7 +43,13 @@ public:
 	void Rolling();
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void DashToTimeLine_Kiin(float TimeLineValue);
+	void DashToTimeLine(float TimeLineValue,float DashSpeed);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashToKiin(float TimeLineValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashToGanpa(float TimeLineValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void DashEndToTimeLine();
@@ -144,6 +150,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Skill;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Skill_Special_Sub;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_ComboCheck;
+
+
 
 public:
 
@@ -207,9 +220,6 @@ protected:
 	float RollingSpeed; //구르는 속도.
 
 	UPROPERTY()
-	float KiinDashPower;
-
-	UPROPERTY()
 	float TimeLinePrev; //타임라인 타이머용 변수.
 
 public:
@@ -234,6 +244,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* KiinAttck_LS = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* Ganpa_Ls = nullptr;
+
 
 
 public:
@@ -253,20 +266,32 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
 	UCurveFloat* KiinDashCurve = nullptr;
-		
+
+	//간파 돌진 타임라인.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* GanpaDashTimeLine = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UCurveFloat* GanpaDashCurve = nullptr;
 protected:
-	//구르기 타임라인 변수.
-	UPROPERTY(EditAnywhere, Category = "TimeLine")
-	FOnTimelineFloat RollingInterpFunction;
-
-	UPROPERTY(EditAnywhere, Category = "TimeLine")
-	FOnTimelineEvent RollingFinishedFunction;
-
+	////구르기 타임라인 변수.
+	//UPROPERTY(EditAnywhere, Category = "TimeLine")
+	//FOnTimelineFloat InterpFunction;
+	//UPROPERTY(EditAnywhere, Category = "TimeLine")
+	//FOnTimelineEvent FinishedFunction;
 
 
-	//기인 마지막 대쉬 타임라인 변수.
-	UPROPERTY(EditAnywhere, Category = "TimeLine")
-	FOnTimelineFloat KiinDashInterpFunction;
-	UPROPERTY(EditAnywhere, Category = "TimeLine")
-	FOnTimelineEvent KiinDashFinishedFunction;
+
+	////기인 마지막 대쉬 타임라인 변수.
+	//UPROPERTY(EditAnywhere, Category = "TimeLine")
+	//FOnTimelineFloat KiinDashInterpFunction;
+	//UPROPERTY(EditAnywhere, Category = "TimeLine")
+	//FOnTimelineEvent KiinDashFinishedFunction;
+
+
+
+	////간파 돌진 타임라인 변수.
+	//UPROPERTY(EditAnywhere, Category = "TiemLine")
+	//FOnTimelineFloat GanpaDashInterpFunction;
+	//UPROPERTY(EditAnywhere, Category = "TimeLine")
+	//FOnTimelineEvent GanpaDashFinishedFunction;
 };
