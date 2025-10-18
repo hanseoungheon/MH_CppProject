@@ -5,6 +5,7 @@
 #include "MyPlayerHunter.h"
 #include "Weapon/MyLongSword.h"
 #include "Weapon/MyDummyWeapon.h"
+#include "Animation/AnimMontage.h"
 
 void UMyPlayerHunterAnimation::AnimNotify_LS_Draw()
 {
@@ -73,7 +74,29 @@ void UMyPlayerHunterAnimation::AnimNotify_LS_AttackEnd()
 
 	//UE_LOG(LogTemp, Display, TEXT("IsThatWorking?"));
 	//공격중인 상태 종료.
+	
+	//예외처리. 발도시 상태처리.
+	if (PlayerCharacter->GetCharacterState() == ECharacterState::Iai)
+	{
+		ECharacterState NewState = PlayerCharacter->GetPrevState();
+		PlayerCharacter->SetState(NewState);
+	}
+
 	PlayerCharacter->bIsAttacking = false;
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_BreakHeadHit()
+{
+	UAnimMontage* BreakHeadMontage = GetHunter()->BreakHead_LS;
+
+	Montage_JumpToSection(TEXT("BeginFly"),BreakHeadMontage);
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_IaiReady()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	PlayerCharacter->SetState(ECharacterState::Iai);
 }
 
 FORCEINLINE AMyPlayerHunter* UMyPlayerHunterAnimation::GetHunter() const

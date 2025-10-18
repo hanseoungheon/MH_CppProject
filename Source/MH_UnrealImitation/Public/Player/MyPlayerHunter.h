@@ -52,6 +52,12 @@ public:
 	void DashToGanpa(float TimeLineValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashToBreakHead(float TimeLineValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void DashToIaiSkill(float TimeLineValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void DashEndToTimeLine();
 protected:
 	// Called when the game starts or when spawned
@@ -151,7 +157,13 @@ public:
 	class UInputAction* IA_Skill;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Skill_Special;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_Skill_Special_Sub;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* IA_Skill_Speical_Roll;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* IA_ComboCheck;
@@ -222,6 +234,7 @@ protected:
 	UPROPERTY()
 	float TimeLinePrev; //타임라인 타이머용 변수.
 
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* DrawLongSword_LS = nullptr;
@@ -246,6 +259,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
 	class UAnimMontage* Ganpa_Ls = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* BreakHead_LS = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim/LongSword")
+	class UAnimMontage* IaiAttack_LS = nullptr;
+
 
 
 
@@ -270,8 +290,32 @@ public:
 	//간파 돌진 타임라인.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
 	UTimelineComponent* GanpaDashTimeLine = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
 	UCurveFloat* GanpaDashCurve = nullptr;
+
+
+	//투구깨기 타임라인
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TiemLine")
+	UTimelineComponent* BreakHeadTimeLine = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TiemLine")
+	UCurveFloat* BreadHeadCurve = nullptr;
+
+	//앉아 발도 기인 베기 타임라인.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* IaiDashTimeLine = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UCurveFloat* IaiDashCurve = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* IaiDefaultAttackDashTimeLine = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TiemLine")
+	UCurveFloat* IaiDefaultAttackDashCurve = nullptr;
+
+
 protected:
 	////구르기 타임라인 변수.
 	//UPROPERTY(EditAnywhere, Category = "TimeLine")

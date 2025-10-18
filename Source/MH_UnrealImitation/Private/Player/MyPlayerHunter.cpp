@@ -37,7 +37,7 @@ AMyPlayerHunter::AMyPlayerHunter()
 	CameraBoom
 		= CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 500.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera
@@ -58,6 +58,8 @@ AMyPlayerHunter::AMyPlayerHunter()
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
 	KiinDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("KiinDashTimeLine"));
 	GanpaDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("GanpaDashTimeLine"));
+	BreakHeadTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("BreakHeadTimeLine"));
+	IaiDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("IaiDashTimeline"));
 
 }
 
@@ -111,6 +113,39 @@ void AMyPlayerHunter::BeginPlay()
 
 		GanpaDashTimeLine->SetLooping(false);
 		GanpaDashTimeLine->SetPlayRate(1.0f);
+	}
+
+	//기인찌르기(투구깨기) 타임라인 설정
+	if (BreakHeadTimeLine != nullptr)
+	{
+		FOnTimelineFloat BreakHeadDashInterpFunction;
+		FOnTimelineEvent BreadHeadDashFinishedFunction;
+
+		BreakHeadDashInterpFunction.BindUFunction(this, FName("DashToBreakHead"));
+		BreakHeadTimeLine->AddInterpFloat(BreadHeadCurve, BreakHeadDashInterpFunction);
+
+		BreadHeadDashFinishedFunction.BindUFunction(this, FName("DashEndToTimeLine"));
+		BreakHeadTimeLine->SetTimelineFinishedFunc(BreadHeadDashFinishedFunction);
+
+		BreakHeadTimeLine->SetLooping(false);
+		BreakHeadTimeLine->SetPlayRate(1.0f);
+	}
+
+	//앉아발도 기인베기 타임라인설정
+
+	if (IaiDashTimeLine != nullptr)
+	{
+		FOnTimelineFloat IaiSkillDashInterpFunction;
+		FOnTimelineEvent IaiSkillDashFinishedFunction;
+
+		IaiSkillDashInterpFunction.BindUFunction(this, FName("DashToIaiSkill"));
+		IaiDashTimeLine->AddInterpFloat(IaiDashCurve, IaiSkillDashInterpFunction);
+
+		IaiSkillDashFinishedFunction.BindUFunction(this, FName("DashEndToTimeLine"));
+		IaiDashTimeLine->SetTimelineFinishedFunc(IaiSkillDashFinishedFunction);
+
+		IaiDashTimeLine->SetLooping(false);
+		IaiDashTimeLine->SetPlayRate(1.0f);
 	}
 }
 	
@@ -205,7 +240,8 @@ void AMyPlayerHunter::BeginRun()
 		//달리기시 이동속도 2배.
 		GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
 	}
-	else if (bIsSheathWepaon == false && State == ECharacterState::Battle)
+	
+	if (bIsSheathWepaon == false && State == ECharacterState::Battle)
 	{
 		bIsSheathWepaon = true;
 
@@ -358,11 +394,45 @@ void AMyPlayerHunter::SkillAttack()
 			}
 		}
 	}
+
+	if (State == ECharacterState::Iai)
+	{
+		if (bIsAttacking == false)
+		{
+			bIsAttacking = true;
+
+			if (LongSword != nullptr)
+			{
+				PlayAnimMontage(IaiAttack_LS, 1.0f, TEXT("IaiAttack"));
+			}
+		}
+	}
+}
+
+void AMyPlayerHunter::Skill_Special()
+{
+	if (State == ECharacterState::Peace || State == ECharacterState::Dead)
+	{
+		return;
+	}
+
+	if (State == ECharacterState::Battle)
+	{
+		if (LongSword != nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("투구깨기 테스트"));
+			if (bIsAttacking == false)
+			{
+				bIsAttacking = true;
+				PlayAnimMontage(BreakHead_LS, 1.0f, TEXT("ReadyBreakHead"));
+			}
+		}
+	}
 }
 
 void AMyPlayerHunter::Skill_Special_Sub()
 {
-	UE_LOG(LogTemp, Display, TEXT("간파베기 테스트."));
+
 	if (State == ECharacterState::Peace || State == ECharacterState::Dead)
 	{
 		return;
@@ -370,12 +440,44 @@ void AMyPlayerHunter::Skill_Special_Sub()
 	
 	if (State == ECharacterState::Battle)
 	{
-		if (bIsAttacking == false)
+		if (LongSword != nullptr)
 		{
-			bIsAttacking = true;
-			PlayAnimMontage(Ganpa_Ls, 1.0f, TEXT("Parring"));
+			UE_LOG(LogTemp, Display, TEXT("간파베기 테스트."));
+			if (bIsAttacking == false)
+			{
+				bIsAttacking = true;
+				PlayAnimMontage(Ganpa_Ls, 1.0f, TEXT("Parring"));
 
-			LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel4;
+				LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel4;
+			}
+		}
+
+	}
+}
+
+void AMyPlayerHunter::Skill_Speical_Roll()
+{
+	if (State == ECharacterState::Peace || State == ECharacterState::Dead)
+	{
+		return;
+	}
+
+	if (State == ECharacterState::Battle)
+	{
+		if (LongSword != nullptr)
+		{
+			if (bIsAttacking == false)
+			{
+				UE_LOG(LogTemp, Display, TEXT("특수 납도 테스트"));
+				//우선 이전 상태를 저장
+				PrevState = State;
+
+				//특수 "납도"이므로 납도상태로 전환.
+				State = ECharacterState::Sheath;
+
+				//특납 몽타주 애니메이션 실행.
+				PlayAnimMontage(IaiAttack_LS, 1.0f, TEXT("Iai"));
+			}
 		}
 	}
 }
@@ -468,6 +570,18 @@ void AMyPlayerHunter::DashToGanpa(float TimeLineValue)
 {
 	float GanpaDashPower = 400.0f;
 	DashToTimeLine(TimeLineValue, GanpaDashPower);
+}
+
+void AMyPlayerHunter::DashToBreakHead(float TimeLineValue)
+{
+	float BreakHeadDashPower = 500.0f;
+	DashToTimeLine(TimeLineValue, BreakHeadDashPower);
+}
+
+void AMyPlayerHunter::DashToIaiSkill(float TimeLineValue)
+{
+	float IaiSkillDashPower = 1000.0f;
+	DashToTimeLine(TimeLineValue, IaiSkillDashPower);
 }
 
 void AMyPlayerHunter::DashEndToTimeLine()
@@ -590,7 +704,12 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		}
 		ensureMsgf(IA_Interact, TEXT("IA_Interact is NULL"));
 
-
+		//특수서브스킬사용(태도: 간파베기)
+		EnhancedPlayerInputComponent->BindAction(IA_Skill_Special_Sub, ETriggerEvent::Started, this, &AMyPlayerHunter::Skill_Special_Sub);
+		//특수 스킬 사용(태도: 기인찌르기->투구깨기)
+		EnhancedPlayerInputComponent->BindAction(IA_Skill_Special, ETriggerEvent::Started, this, &AMyPlayerHunter::Skill_Special);
+		//특수기 사용(태도 특납)
+		EnhancedPlayerInputComponent->BindAction(IA_Skill_Speical_Roll, ETriggerEvent::Started, this, &AMyPlayerHunter::Skill_Speical_Roll);
 
 		//움직임.
 		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Move);
@@ -611,8 +730,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedPlayerInputComponent->BindAction(IA_SubAttack, ETriggerEvent::Triggered, this, &AMyPlayerHunter::AttackSub);
 		//스킬사용(태도: 기인베기)
 		EnhancedPlayerInputComponent->BindAction(IA_Skill, ETriggerEvent::Triggered, this, &AMyPlayerHunter::SkillAttack);
-		//
-		EnhancedPlayerInputComponent->BindAction(IA_Skill_Special_Sub, ETriggerEvent::Started, this, &AMyPlayerHunter::Skill_Special_Sub);
+
+	
 	}
 
 }

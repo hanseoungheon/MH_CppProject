@@ -32,6 +32,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon/LongSword/Attack")
 	void AnimNotify_LS_AttackEnd();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapom/LongSword/Attack")
+	void AnimNotify_LS_BreakHeadHit();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon/LongSword/Attack")
+	void AnimNotify_LS_IaiReady();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	ECharacterState StateAnim = ECharacterState::Peace;

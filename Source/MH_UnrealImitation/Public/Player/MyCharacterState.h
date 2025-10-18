@@ -9,9 +9,9 @@ enum class ECharacterState : uint8
     Battle = 1 UMETA(DisplayName = "Battle"),
     Draw = 2   UMETA(DisplayName = "Draw"),
     Sheath = 3 UMETA(DisplayName = "Sheath"),
-    //Iai    UMETA(DisplayName = "Iai"),
-    Roll = 4   UMETA(DisplayName = "Roll"),
-    Dead = 5   UMETA(DisplayName = "Dead"),
+    Iai = 4    UMETA(DisplayName = "Iai"),
+    Roll = 5   UMETA(DisplayName = "Roll"),
+    Dead = 6   UMETA(DisplayName = "Dead"),
 };
 
 UENUM()
