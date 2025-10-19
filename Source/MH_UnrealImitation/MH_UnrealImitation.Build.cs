@@ -17,6 +17,7 @@ public class MH_UnrealImitation : ModuleRules
 		{ 
 			Path.Combine(ModuleDirectory, "Public", "Player"),
 			Path.Combine(ModuleDirectory, "Public", "Weapon"),
+			Path.Combine(ModuleDirectory, "Public", "Monster"),
 		});	
 
 		// Uncomment if you are using Slate UI
