@@ -9,7 +9,7 @@ public class MH_UnrealImitation : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayTasks", "AIModule" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
@@ -18,6 +18,7 @@ public class MH_UnrealImitation : ModuleRules
 			Path.Combine(ModuleDirectory, "Public", "Player"),
 			Path.Combine(ModuleDirectory, "Public", "Weapon"),
 			Path.Combine(ModuleDirectory, "Public", "Monster"),
+			Path.Combine(ModuleDirectory, "Public","MyComponent"),
 		});	
 
 		// Uncomment if you are using Slate UI

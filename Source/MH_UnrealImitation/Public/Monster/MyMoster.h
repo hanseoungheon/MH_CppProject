@@ -5,6 +5,10 @@
 #include "CoreMinimal.h"
 #include "MyMonsterState.h"
 #include "GameFramework/Character.h"
+#include "Perception/PawnSensingComponent.h"
+#include "AIController.h"
+#include "MyMonsterAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "MyMoster.generated.h"
 
 UCLASS()
@@ -12,6 +16,9 @@ class MH_UNREALIMITATION_API AMyMoster : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sensing", meta = (AllowPrivateAccess = "true"))
+	UPawnSensingComponent* PawnSensing;
+	
 public:
 	// Sets default values for this character's properties
 	AMyMoster();
@@ -22,6 +29,10 @@ protected:
 
 	void DashToFrontOfTimeLine(float TimeLineValue, float DashSpeed);
 	void DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed);
+
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,24 +47,53 @@ protected:
 public:
 
 	//Getter & Setter
+	UFUNCTION(BlueprintCallable, Category = "State")
 	EMonsterState GetMonsterState() const
 	{
 		return State;
 	}
-	
+
+	UFUNCTION(BlueprintCallable, Category = "State")
 	void SetMonsterState(const EMonsterState NewState)
 	{
+		if (State == EMonsterState::Dead)
+		{
+			return;
+		}
+
 		State = NewState;
+
+		AMyMonsterAIController* MyAIController = Cast<AMyMonsterAIController>(GetController());
+
+		if (MyAIController != nullptr)
+		{
+			UBlackboardComponent* BB = MyAIController->GetBlackboardComponent();
+
+			if (BB == nullptr)
+			{
+				return;
+			}
+
+			BB->SetValueAsEnum(StateKey,static_cast<uint8>(NewState));
+		}
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "State")
 	EMonsterState GetMonsterPreState() const
 	{
 		return PreState;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "State")
 	void SetMonsterPreState(const EMonsterState NewPreState)
 	{
 		PreState = NewPreState;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "State")
+	float GetPatrolRadius() const
+	{
+		return PatrolRadius;
 	}
 
 protected:
@@ -86,4 +126,14 @@ protected:
 
 	UPROPERTY()
 	float TimeLinePrev = 0.0f; //타임라인용 타이머 변수.
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float PatrolRadius = 1500.0f;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	EMonsterState DebugState = EMonsterState::Peace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim")
+	class UAnimMontage* RoarMontage = nullptr;
 };

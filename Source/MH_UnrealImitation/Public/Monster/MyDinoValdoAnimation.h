@@ -17,8 +17,15 @@ class MH_UNREALIMITATION_API UMyDinoValdoAnimation : public UAnimInstance
 
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Chase")
+	void AnimNotify_M_StartChase();
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	EMonsterState StateAnim = EMonsterState::Peace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	EMonsterState PrevStateAnim = EMonsterState::Peace;
 
 private:
 	class AMyDinoValdo* GetDinovaldo() const;

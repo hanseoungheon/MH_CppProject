@@ -15,7 +15,7 @@ class MH_UNREALIMITATION_API AMyDinoValdo : public AMyMoster
 	GENERATED_BODY()
 	
 public:
-
+	AMyDinoValdo();
 protected:
 	virtual void Angry() override;
 public:
