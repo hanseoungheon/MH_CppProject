@@ -3,6 +3,13 @@
 
 #include "MyLongSword.h"
 #include "Player/MyPlayerHunter.h"
+#include "Components/BoxComponent.h"	
+
+AMyLongSword::AMyLongSword()
+{
+	//AttackCollision->SetLoca
+}
+
 
 void AMyLongSword::BeginPlay()
 {
@@ -57,6 +64,20 @@ void AMyLongSword::SwitchLongSwordLevel()
 		KiinLevel = ELongSwordLevel::LSLevel3;
 		break;
 	}
+}
+
+void AMyLongSword::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//if (Dodge_Ganpa)
+	//{
+	//	UE_LOG(LogTemp, Display, TEXT("Ganpa True"));
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Display, TEXT("Ganpa False"));
+	//}
 }
 
 

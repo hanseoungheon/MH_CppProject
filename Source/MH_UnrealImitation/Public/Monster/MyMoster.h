@@ -11,6 +11,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "MyMoster.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
 class MH_UNREALIMITATION_API AMyMoster : public ACharacter
 {
@@ -27,8 +29,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Category = "Attack")
 	void DashToFrontOfTimeLine(float TimeLineValue, float DashSpeed);
+	UFUNCTION(Category = "Attack")
 	void DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed);
+
+	UFUNCTION(Category = "Attack")
+	void DashEndToTimeLine();
 
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
@@ -40,58 +47,52 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Damage")
+	void MonsterDead();
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void PrintHelath(float HealthPower, float MaxHealthPower);
+
+	//데미지 받기.
+	UFUNCTION(Category = "Damage")
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	//데미지 주기.
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void ApplyDamamge(AActor* Other, float BaseDamage, AController* InstigatorCtrl);
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	virtual void Angry();
+
+
 
 public:
 
 	//Getter & Setter
 	UFUNCTION(BlueprintCallable, Category = "State")
-	EMonsterState GetMonsterState() const
+	FORCEINLINE EMonsterState GetMonsterState() const
 	{
 		return State;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	void SetMonsterState(const EMonsterState NewState)
-	{
-		if (State == EMonsterState::Dead)
-		{
-			return;
-		}
-
-		State = NewState;
-
-		AMyMonsterAIController* MyAIController = Cast<AMyMonsterAIController>(GetController());
-
-		if (MyAIController != nullptr)
-		{
-			UBlackboardComponent* BB = MyAIController->GetBlackboardComponent();
-
-			if (BB == nullptr)
-			{
-				return;
-			}
-
-			BB->SetValueAsEnum(StateKey,static_cast<uint8>(NewState));
-		}
-	}
+	void SetMonsterState(const EMonsterState NewState);
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	EMonsterState GetMonsterPreState() const
+	FORCEINLINE EMonsterState GetMonsterPreState() const
 	{
 		return PreState;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	void SetMonsterPreState(const EMonsterState NewPreState)
+	FORCEINLINE void SetMonsterPreState(const EMonsterState NewPreState)
 	{
 		PreState = NewPreState;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	float GetPatrolRadius() const
+	FORCEINLINE float GetPatrolRadius() const
 	{
 		return PatrolRadius;
 	}
@@ -130,10 +131,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float PatrolRadius = 1500.0f;
 
+	class UMyDamageReceiver* DamageReceiver = nullptr;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	EMonsterState DebugState = EMonsterState::Peace;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim")
-	class UAnimMontage* RoarMontage = nullptr;
+	UAnimMontage* RoarMontage = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anim")
+	TArray<UAnimMontage*> AttackMontages;
 };

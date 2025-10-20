@@ -39,10 +39,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void SetVisibleWeapon();
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void OnAttackToBegin();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void OnAttackToEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void ApplyDamamge(AActor* Other, float BaseDamage, AController* InstigatorCtrl);
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
 	class USphereComponent* SphereCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	class UBoxComponent* AttackCollision = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class USkeletalMeshComponent* WeaponMesh;

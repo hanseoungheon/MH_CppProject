@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Monster/MyMoster.h"
+#include "Components/TimelineComponent.h"
 #include "MyDinoValdo.generated.h"
 
 /**
@@ -17,8 +18,20 @@ class MH_UNREALIMITATION_API AMyDinoValdo : public AMyMoster
 public:
 	AMyDinoValdo();
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void Angry() override;
+
+	UFUNCTION(Category = "Attack")
+	void DashToSpeicalDash(float TimeLineValue);
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UTimelineComponent* SpecialDashTimeline = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeLine")
+	UCurveFloat* SpecialDashCurve = nullptr;
+
+
 
 protected:
 

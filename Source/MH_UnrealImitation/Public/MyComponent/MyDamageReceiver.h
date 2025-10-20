@@ -69,14 +69,14 @@ public:
 	FOnDead OnDead;
 
 protected:
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float MaxHealthPower = 0.0f;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float HealthPower = 0.0f;
 
 	bool bVulnerable = true; //공격을 맞았을때 매 틱마다 계산되는걸 방지하기 위해서 잠깐의 무적시간을 부여할때 사용되는 불리언변수.
-	float InVulnerableTime = 0.0f; //무적시간.
+	float InVulnerableTime = 0.5f; //무적시간.
 
 	FTimerHandle VulnerableTimerHandle;
 

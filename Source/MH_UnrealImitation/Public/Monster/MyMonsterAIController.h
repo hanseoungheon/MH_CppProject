@@ -18,7 +18,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
-	UBlackboardComponent* GetBlackBoardComponent() const
+	FORCEINLINE UBlackboardComponent* GetBlackBoardComponent() const
 	{
 		return BBComponent;
 	}

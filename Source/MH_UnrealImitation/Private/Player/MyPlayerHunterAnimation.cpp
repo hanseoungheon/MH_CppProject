@@ -99,6 +99,75 @@ void UMyPlayerHunterAnimation::AnimNotify_LS_IaiReady()
 	PlayerCharacter->SetState(ECharacterState::Iai);
 }
 
+void UMyPlayerHunterAnimation::AnimNotify_Wp_AttackBegin()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	PlayerCharacter->OnHunterAttackCheckBegin();
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_Wp_AttackEnd()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	PlayerCharacter->OnHunterAttackCheckEnd();
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_RollingStart()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	PlayerCharacter->Dodge_Roll = true;
+
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_RollingEnd()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	PlayerCharacter->Dodge_Roll = false;
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_GanpaStart()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	if (PlayerCharacter->LongSword != nullptr)
+	{
+		PlayerCharacter->LongSword->Dodge_Ganpa = true;
+	}
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_GanpaEnd()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	if (PlayerCharacter->LongSword != nullptr)
+	{
+		PlayerCharacter->LongSword->Dodge_Ganpa = false;
+	}
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_IaiStart()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	if (PlayerCharacter->LongSword != nullptr)
+	{
+		PlayerCharacter->LongSword->Dodge_Iai = true;
+	}
+}
+
+void UMyPlayerHunterAnimation::AnimNotify_LS_IaiEnd()
+{
+	AMyPlayerHunter* PlayerCharacter = GetHunter();
+
+	if (PlayerCharacter->LongSword != nullptr)
+	{
+		PlayerCharacter->LongSword->Dodge_Iai = true;
+	}
+}
+
 FORCEINLINE AMyPlayerHunter* UMyPlayerHunterAnimation::GetHunter() const
 {
 	return Cast<AMyPlayerHunter>(TryGetPawnOwner());

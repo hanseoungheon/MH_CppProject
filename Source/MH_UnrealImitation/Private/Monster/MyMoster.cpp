@@ -9,6 +9,8 @@
 #include "Player/MyPlayerHunter.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Animation/AnimMontage.h"
+#include "MyComponent/MyDamageReceiver.h"
+#include "AIController.h"
 
 // Sets default values
 AMyMoster::AMyMoster()
@@ -44,6 +46,15 @@ AMyMoster::AMyMoster()
 void AMyMoster::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DamageReceiver = FindComponentByClass<UMyDamageReceiver>(); //에디터에서 추가할거임.
+
+	if (DamageReceiver != nullptr)
+	{
+		DamageReceiver->OnDead.AddDynamic(this, &AMyMoster::MonsterDead);
+		DamageReceiver->OnHealthChanged.AddDynamic(this, &AMyMoster::PrintHelath);
+	}
+
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
@@ -64,6 +75,7 @@ void AMyMoster::DashToFrontOfTimeLine(float TimeLineValue, float DashSpeed)
 
 void AMyMoster::DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed)
 {
+	//UE_LOG(LogTemp, Display, TEXT("DINOVALDO SPD TEST"));
 	AMyPlayerHunter* Hunter = Cast<AMyPlayerHunter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	if (Hunter == nullptr)
@@ -84,6 +96,11 @@ void AMyMoster::DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed)
 	AddActorWorldOffset(DashLocation, true);
 
 	TimeLinePrev = TimeLineValue;
+}
+
+void AMyMoster::DashEndToTimeLine()
+{
+	TimeLinePrev = 0.0f;
 }
 
 void AMyMoster::OnSeePawn(APawn* Pawn)
@@ -124,8 +141,6 @@ void AMyMoster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-
 }
 
 // Called to bind functionality to input
@@ -135,8 +150,75 @@ void AMyMoster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AMyMoster::PrintHelath(float HealthPower, float MaxHealthPower)
+{
+	UE_LOG(LogTemp, Display, TEXT("Max Monster Health :%f\n\n"),DamageReceiver->GetMaxHealthPower());
+	UE_LOG(LogTemp, Display, TEXT("Current Monster Health : %f\n\n"), DamageReceiver->GetHealthPower());
+}
+
+float AMyMoster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	DamageReceiver->OnDamageReceived(FinalDamage);
+
+	return FinalDamage;
+}
+
+void AMyMoster::ApplyDamamge(AActor* Other, float BaseDamage,AController* InstigatorCtrl)
+{
+	if (Other == nullptr || Other == this)
+	{
+		return;
+	}
+
+	if (InstigatorCtrl == nullptr)
+	{
+		if (APawn* Pawn = Cast<APawn>(this))
+		{
+			InstigatorCtrl = Pawn->GetController(); // nullptr이어도 ApplyDamage는 호출 가능
+		}
+	}
+
+	// 몬스터 본체가 때리므로 DamageCauser는 this
+	AActor* DamageCauser = this;
+
+	UGameplayStatics::ApplyDamage(
+		Other,
+		BaseDamage,
+		InstigatorCtrl,
+		DamageCauser,
+		UDamageType::StaticClass()
+	);
+}
+
+
 void AMyMoster::Angry()
 {
 	//GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+}
+
+void AMyMoster::SetMonsterState(const EMonsterState NewState)
+{
+	if (State == EMonsterState::Dead)
+	{
+		return;
+	}
+
+	State = NewState;
+
+	AMyMonsterAIController* MyAIController = Cast<AMyMonsterAIController>(GetController());
+
+	if (MyAIController != nullptr)
+	{
+		UBlackboardComponent* BB = MyAIController->GetBlackboardComponent();
+
+		if (BB == nullptr)
+		{
+			return;
+		}
+
+		BB->SetValueAsEnum(StateKey, static_cast<uint8>(NewState));
+	}
 }
 

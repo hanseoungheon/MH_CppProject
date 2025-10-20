@@ -38,6 +38,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon/LongSword/Attack")
 	void AnimNotify_LS_IaiReady();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon/Attack")
+	void AnimNotify_Wp_AttackBegin();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon/Attack")
+	void AnimNotify_Wp_AttackEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_RollingStart();
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_RollingEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_LS_GanpaStart();
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_LS_GanpaEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_LS_IaiStart();
+	UFUNCTION(BlueprintCallable, Category = "Dodge")
+	void AnimNotify_LS_IaiEnd();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	ECharacterState StateAnim = ECharacterState::Peace;

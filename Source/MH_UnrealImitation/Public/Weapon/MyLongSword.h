@@ -38,9 +38,13 @@ class MH_UNREALIMITATION_API AMyLongSword : public AMyWeapon
 	//태도에게 필요한것
 	//기인 레벨 끝?
 public:
+	AMyLongSword();
+
 	//태도 기인레벨 스위치하는 함수.
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void SwitchLongSwordLevel();
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,6 +61,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
 	bool bIsIai;
+
+	//간파베기 회피.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	bool Dodge_Ganpa = false;
+
+	//특납 회피
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	bool Dodge_Iai = false;
+
+
 
 private:
 	float longSwordBaseDamage = 50.0f;

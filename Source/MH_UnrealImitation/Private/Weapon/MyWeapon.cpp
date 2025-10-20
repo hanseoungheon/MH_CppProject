@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Player/MyPlayerHunter.h"
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 AMyWeapon::AMyWeapon()
 {
@@ -40,6 +41,12 @@ AMyWeapon::AMyWeapon()
 	WeaponMesh->SetRelativeScale3D(FVector(1.0f));
 
 	WeaponMesh->SetSimulatePhysics(false);
+
+	//공격 판정용 콜리전 생성
+	AttackCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackCollision"));
+	AttackCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttackCollision->SetupAttachment(SphereCollision);
+
 }
 
 // Called when the game starts or when spawned
@@ -47,7 +54,7 @@ void AMyWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	SetInstigator(Cast<APawn>(GetOwner()));
 }
 
 void AMyWeapon::DisCountSharpness(float DisSharp)
@@ -115,5 +122,40 @@ void AMyWeapon::SetVisibleWeapon()
 			break;
 		}
 	}
+}
+
+void AMyWeapon::OnAttackToBegin()
+{
+	UE_LOG(LogTemp, Display, TEXT("WP AttackBegin"));
+	AttackCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AMyWeapon::OnAttackToEnd()
+{
+	AttackCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMyWeapon::ApplyDamamge(AActor* Other, float BaseDamage, AController* InstigatorCtrl)
+{
+	if (Other == nullptr || Other == this)
+	{
+		return;
+	}
+
+	// Instigator를 못 받았으면, 무기 Instigator(소유자 Pawn)에서 가져오기
+	if (InstigatorCtrl == nullptr)
+	{
+		InstigatorCtrl = GetInstigatorController();  // ← BeginPlay의 SetInstigator 덕분에 정확
+	}
+
+	AActor* DamageCauser = this; // 무기 자체가 공격 주체
+
+	UGameplayStatics::ApplyDamage(
+		Other,
+		BaseDamage,
+		InstigatorCtrl,
+		DamageCauser,
+		UDamageType::StaticClass()
+	);
 }
 

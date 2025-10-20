@@ -34,9 +34,9 @@ void UMyDamageReceiver::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UMyDamageReceiver::OnDamageReceived(float NewDamage)
 {
-	UE_LOG(LogTemp, Display, TEXT("공격이 실행되는지 테스트입니다."));
 	if (bVulnerable == true)
 	{
+		UE_LOG(LogTemp, Display, TEXT("AttackTest"));
 		bVulnerable = false;
 
 		UWorld* world = GetWorld();
@@ -46,7 +46,11 @@ void UMyDamageReceiver::OnDamageReceived(float NewDamage)
 			return;
 		}
 
-		world->GetTimerManager().SetTimer(
+		FTimerManager& Timer = world->GetTimerManager();
+
+		Timer.ClearTimer(VulnerableTimerHandle);
+
+		Timer.SetTimer(
 			VulnerableTimerHandle,
 			this,
 			&UMyDamageReceiver::ReturnToVulnerable,

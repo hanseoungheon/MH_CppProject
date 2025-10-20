@@ -36,6 +36,21 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnLongSwordAndHouse();
 
+	UFUNCTION(Category = "Damage")
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void OnPlayerDead();
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void PrintHelath(float HealthPower, float MaxHealthPower);
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void OnHunterAttackCheckBegin();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void OnHunterAttackCheckEnd();
+
 	UFUNCTION(BlueprintCallable, Category = "Move")
 	void OnRollingUpdate(float Value);
 
@@ -59,6 +74,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void DashEndToTimeLine();
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -102,25 +119,25 @@ public:
 
 	//Getters & Setters
 	UFUNCTION(BlueprintCallable, Category = "State")
-	ECharacterState GetCharacterState() const
+	FORCEINLINE ECharacterState GetCharacterState() const
 	{
 		return State;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	void SetState(const ECharacterState NewState)
+	FORCEINLINE void SetState(const ECharacterState NewState)
 	{
 		State = NewState;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "State")
-	ECharacterState GetPrevState() const
+	FORCEINLINE ECharacterState GetPrevState() const
 	{
 		return PrevState;
 	}
 	
 	UFUNCTION(BlueprintCallable, Category = "State")
-	void SetPrevState()
+	FORCEINLINE void SetPrevState()
 	{
 		//PrevState에 State를 저장에서 이전 프레임/동작에 사용된 State로 사용.
 		PrevState = State;
@@ -206,6 +223,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	int32 DefaultAttackCombo;
+
+	//회피에 쓰일 변수.
+	UPROPERTY(EditAnywhere, Category = "Dodge")
+	bool Dodge_Roll = false;
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
@@ -234,6 +255,7 @@ protected:
 	UPROPERTY()
 	float TimeLinePrev; //타임라인 타이머용 변수.
 
+	class UMyDamageReceiver* DamageReceiver = nullptr;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")
