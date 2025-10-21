@@ -47,6 +47,7 @@ void UMyAttackNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	if (PlayerHunter != nullptr)
 	{
+		//PlayerHunter->SetYawRotVector(FVector(0.0f, 0.0f, 0.0f));
 		PlayerHunter->bIsCanMove = true;
 	}
 }

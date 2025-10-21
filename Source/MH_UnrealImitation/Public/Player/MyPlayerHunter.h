@@ -102,7 +102,7 @@ protected:
 	
 	void StartRolling(); //구르기<스페이스바>(기본)
 
-	//void SetHunterRotation(); //동작시 헌터에게 회전을 적용
+	void SetHunterRoataion();
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
@@ -143,6 +143,12 @@ public:
 	{
 		//PrevState에 State를 저장에서 이전 프레임/동작에 사용된 State로 사용.
 		PrevState = State;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Vector")
+	FORCEINLINE void SetYawRotVector(const FVector NewVector)
+	{
+		YawRotVector = NewVector;
 	}
 
 public:

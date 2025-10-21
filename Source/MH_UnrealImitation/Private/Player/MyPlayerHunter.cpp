@@ -16,6 +16,7 @@
 #include "InputAction.h"
 #include "Animation/AnimMontage.h"
 #include "MyComponent/MyDamageReceiver.h"
+#include "GameFramework/Controller.h"
 
 // Sets default values
 AMyPlayerHunter::AMyPlayerHunter()
@@ -530,7 +531,7 @@ void AMyPlayerHunter::Skill_Special()
 	if (State == ECharacterState::Battle)
 	{
 		RollRotationChange();
-
+		
 		if (LongSword != nullptr)
 		{
 			UE_LOG(LogTemp, Display, TEXT("투구깨기 테스트"));
@@ -643,10 +644,12 @@ void AMyPlayerHunter::StartRolling()
 	}
 }
 
-//void AMyPlayerHunter::SetHunterRotation()
-//{
-//
-//}
+void AMyPlayerHunter::SetHunterRoataion()
+{
+	UE_LOG(LogTemp, Display, TEXT("테스트"));
+
+	YawRotVector = FVector(0.0f, 0.0f, 0.0f);
+}
 
 void AMyPlayerHunter::OnRollingUpdate(float Value)
 {
@@ -774,6 +777,11 @@ void AMyPlayerHunter::StartPickUp()
 
 void AMyPlayerHunter::RollRotationChange()
 {
+
+	//if (IsRootMotionActive()) return;                 // 루트모션 중 회전 금지 (권장)
+	if (YawRotVector.IsNearlyZero(0.01f)) 
+		return;     // ✅ 입력 없으면 회전하지 않음
+
 	//현재 카메라의 각도를 가져와서 저장.
 	FRotator CurrentCamRot = GetControlRotation();
 
@@ -804,6 +812,8 @@ void AMyPlayerHunter::Tick(float DeltaTime)
 	//{
 	//	UE_LOG(LogTemp, Display, TEXT("Is NULL"));
 	//}
+
+	UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 }
 
 // Called to bind functionality to input
@@ -838,6 +848,8 @@ void AMyPlayerHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		//움직임.
 		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Move);
+		//WASD에서 뗄때
+		EnhancedPlayerInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &AMyPlayerHunter::SetHunterRoataion);
 		//마우스로 시선움직이기.
 		EnhancedPlayerInputComponent->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMyPlayerHunter::Look);
 		//달리기 시작
