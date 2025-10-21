@@ -51,7 +51,7 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	CurrentRot = 90.0f; //YawRotVector에서 90을 곱하면 정확히 입력값에 따라서 바라보는 방향이 YawRotVector에 저장됨.
 
-	RollingSpeed = 900.0f; //구르기 속도
+	RollingSpeed = 700.0f; //구르기 속도
 
 	TimeLinePrev = 0.0f; //타임라인 체크 변수 초기화.
 
@@ -289,7 +289,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 	{
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 
-		if (InputValue.X != 0.0f /* && bIsAttacking == false*/) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
+		if (InputValue.X != 0.0f && bIsCanMove == true) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
 		{
 			const FVector RightDirection =
 				UKismetMathLibrary::GetRightVector(YawRotation);
@@ -297,7 +297,7 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 			AddMovementInput(RightDirection, InputValue.X);
 		}
 
-		if (InputValue.Y != 0.0f /*&& bIsAttacking == false*/) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
+		if (InputValue.Y != 0.0f && bIsCanMove == true) //공격중이 아닐때만 이동 가능하게 하지만 일단 에디터에서 해보자
 		{
 			const FVector ForwardVector =
 				YawRotation.Vector();
@@ -401,16 +401,16 @@ void AMyPlayerHunter::Attack()
 	{
 		if (bIsAttacking == false) //전투중(Battle)에 공격중이 아닐경우.
 		{
+			//RollRotationChange();
 			bIsAttacking = true; //공격중으로 설정.
 
 			if (LongSword != nullptr)
-			{
+			{	
+				//PrevState = State;
+				//State = ECharacterState::Attack;
 				switch (DefaultAttackCombo)
 				{
 				case 1:
-					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_1"));
-					break;
-
 				case 2:
 					PlayAnimMontage(DefaultAttack_LS, 1.0f, TEXT("DAttack_1"));
 					break;
@@ -447,6 +447,7 @@ void AMyPlayerHunter::AttackSub()
 		{
 			bIsAttacking = true; //공격중 상태로 변경.
 
+			//RollRotationChange();
 			if (LongSword != nullptr)
 			{
 				PlayAnimMontage(SubAttack_LS, 1.0f, TEXT("SAttack"));
@@ -496,6 +497,7 @@ void AMyPlayerHunter::SkillAttack()
 					break;
 
 				case EKiinAttackLevel::KIINLevel4:
+					RollRotationChange();
 					LongSword->KiinSkillLevel = EKiinAttackLevel::KIINLevel1;
 					PlayAnimMontage(KiinAttck_LS, 1.0f, TEXT("Kiin4"));
 					break;
@@ -527,6 +529,8 @@ void AMyPlayerHunter::Skill_Special()
 
 	if (State == ECharacterState::Battle)
 	{
+		RollRotationChange();
+
 		if (LongSword != nullptr)
 		{
 			UE_LOG(LogTemp, Display, TEXT("투구깨기 테스트"));
@@ -549,6 +553,8 @@ void AMyPlayerHunter::Skill_Special_Sub()
 	
 	if (State == ECharacterState::Battle)
 	{
+		RollRotationChange(); //회전하기.
+
 		if (LongSword != nullptr)
 		{
 			UE_LOG(LogTemp, Display, TEXT("간파베기 테스트."));
@@ -573,6 +579,7 @@ void AMyPlayerHunter::Skill_Speical_Roll()
 
 	if (State == ECharacterState::Battle)
 	{
+		RollRotationChange();
 		if (LongSword != nullptr)
 		{
 			if (bIsAttacking == false)
@@ -600,6 +607,9 @@ void AMyPlayerHunter::StartRolling()
 			|| YawRotVector.Y == 90.0f && YawRotVector.X == -90.0f)
 		{
 			bIsRolling = true;
+
+			//각도 변경해주는 함수.
+			RollRotationChange();
 			PlayAnimMontage(RollAnim, 1.0f, TEXT("Rolling_F"));
 		}
 		else if (YawRotVector.Y == -90.0f //만약에 움직임 방향전위가 뒤거나, 뒤왼/뒤오 동시에일 경우 뒷구르기 시전.
@@ -633,6 +643,11 @@ void AMyPlayerHunter::StartRolling()
 	}
 }
 
+//void AMyPlayerHunter::SetHunterRotation()
+//{
+//
+//}
+
 void AMyPlayerHunter::OnRollingUpdate(float Value)
 {
 	//UE_LOG(LogTemp, Log, TEXT("동작하는지 테스트."));
@@ -650,6 +665,7 @@ void AMyPlayerHunter::Rolling()
 
 	GetCharacterMovement()->Velocity = (GetActorForwardVector() * RollingSpeed);
 	GetCharacterMovement()->Velocity.Z = KeepZ;
+
 }
 
 
@@ -762,12 +778,12 @@ void AMyPlayerHunter::RollRotationChange()
 	FRotator CurrentCamRot = GetControlRotation();
 
 	//회전할 각도의 Pitch(Y값)
-	float NewPitch = YawRotVector.X + CurrentCamRot.Pitch;
+	float NewPitch = YawRotVector.Y + CurrentCamRot.Pitch;
 	//회전할 각도의 Yaw(Z값)
-	float NewYaw = YawRotVector.Y + CurrentCamRot.Yaw;
+	float NewYaw = YawRotVector.X + CurrentCamRot.Yaw;
 
 	//새로운 각도
-	FRotator NewRot = FRotator(CurrentCamRot.Roll, NewPitch, NewYaw);
+	FRotator NewRot = FRotator(NewPitch, NewYaw,CurrentCamRot.Roll);
 
 	SetActorRotation(NewRot);
 }

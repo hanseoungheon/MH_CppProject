@@ -20,5 +20,5 @@ enum class ECharacterDirection : uint8
     Front = 0  UMETA(DisplayName = "Front"),
     Back = 1   UMETA(DisplayName = "Back"),
     Left = 2   UMETA(DisplayName = "Left"),
-    Right = 3 UMETA(DisplayName = "Right"),
+    Right = 3  UMETA(DisplayName = "Right"),
 };

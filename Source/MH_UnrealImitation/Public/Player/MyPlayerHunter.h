@@ -102,6 +102,8 @@ protected:
 	
 	void StartRolling(); //구르기<스페이스바>(기본)
 
+	//void SetHunterRotation(); //동작시 헌터에게 회전을 적용
+
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void PickUpTheWeapon(FName SocketName);
 
@@ -217,6 +219,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIsRolling = false; //구르고 있는 중인지?
+
+	bool bIsCanMove = true; //움직일 수 없는상태인지?
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	int32 DefaultAttackCheck;
