@@ -20,6 +20,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Chase")
 	void AnimNotify_M_StartChase();
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_BiteStart();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_BiteEnd();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_TailAttack_Start();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_TailAttack_End();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_SpecialAttack_Start();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AnimNotify_DV_SpecialAttack_End();
+
+
+
+
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EMonsterState StateAnim = EMonsterState::Peace;

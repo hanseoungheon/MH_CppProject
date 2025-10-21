@@ -32,7 +32,7 @@ AMyMoster::AMyMoster()
 	PawnSensing->SensingInterval = 0.5f; 
 	PawnSensing->bSeePawns = true; //볼수는 있음
 	PawnSensing->bHearNoises = false; //근데 들을 수 는 없음
-	PawnSensing->SetPeripheralVisionAngle(45.0f); //시야각
+	PawnSensing->SetPeripheralVisionAngle(30.0f); //시야각
 	PawnSensing->SightRadius = 2000.f; // 시야범위
 
 	PawnSensing->OnSeePawn.AddDynamic(this, &AMyMoster::OnSeePawn);
@@ -148,6 +148,13 @@ void AMyMoster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AMyMoster::MonsterDead()
+{
+	State = EMonsterState::Dead;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	StopAnimMontage();
 }
 
 void AMyMoster::PrintHelath(float HealthPower, float MaxHealthPower)

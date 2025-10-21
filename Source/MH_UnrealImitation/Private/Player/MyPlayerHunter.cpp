@@ -278,6 +278,11 @@ void AMyPlayerHunter::OnHunterAttackCheckEnd()
 
 void AMyPlayerHunter::Move(const FInputActionValue& Value)
 {
+	if (State == ECharacterState::Dead)
+	{
+		return;
+	}
+
 	FVector2D InputValue = Value.Get<FVector2D>();
 
 	if (Controller != nullptr && (InputValue.X != 0.0f || InputValue.Y != 0.0f))
@@ -310,6 +315,11 @@ void AMyPlayerHunter::Move(const FInputActionValue& Value)
 
 void AMyPlayerHunter::Look(const FInputActionValue& Value)
 {
+	if (State == ECharacterState::Dead)
+	{
+		return;
+	}
+
 	FVector2D InputValue = Value.Get<FVector2D>();
 
 	if (InputValue.X != 0.0f)
@@ -365,9 +375,12 @@ void AMyPlayerHunter::StopRun()
 
 void AMyPlayerHunter::Attack()	
 {
+	//UE_LOG(LogTemp, Display, TEXT("Why Not Working?"));
 	//만약 검을 뽑고있는중이 아니며, 비전투상태일경우. 
 	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
 	{
+		//UE_LOG(LogTemp, Display, TEXT("일단 첫번쨰 If문까지는 들어왔음"));
+
 		if (MovingSpeed > WalkSpeed)
 		{
 			//Todo: 달리면서 어택키를 누를시 즉시 발도하면서 공격.
@@ -375,10 +388,11 @@ void AMyPlayerHunter::Attack()
 		else
 		{
 			bIsDrawWeapon = true; //검을 뽑고있는중으로 변경.
-
+			//UE_LOG(LogTemp, Display, TEXT("여기까지만 되면 LongSword가 NUll인거임"));
 			if (LongSword != nullptr)
 			{
 				PlayAnimMontage(DrawLongSword_LS, 1.0f, TEXT("Draw"));
+				//UE_LOG(LogTemp, Display, TEXT("몽타주 재생까지는 들어왔음?"));
 			}
 		}
 

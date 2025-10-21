@@ -47,8 +47,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Damage")
-	void MonsterDead();
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	virtual void MonsterDead();
 
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	void PrintHelath(float HealthPower, float MaxHealthPower);
@@ -132,6 +132,9 @@ protected:
 	float PatrolRadius = 1500.0f;
 
 	class UMyDamageReceiver* DamageReceiver = nullptr;
+
+	float HitBoxRadius = 0.0f;
+	float AttackCollisionRadius = 0.0f;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
