@@ -6,6 +6,38 @@
 #include "Weapon/MyLongSword.h"
 #include "Weapon/MyDummyWeapon.h"
 #include "Animation/AnimMontage.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+UMyPlayerHunterAnimation::UMyPlayerHunterAnimation()
+{
+
+}
+
+void UMyPlayerHunterAnimation::NativeInitializeAnimation()
+{
+	//애니메이션이 초기화될 때 실행되는 함수.
+	Super::NativeInitializeAnimation();
+
+
+}
+
+void UMyPlayerHunterAnimation::NativeUpdateAnimation(float DeltaSeconds)
+{
+	//애니메이션이 업데이트를 할 때 프레임마다 실행되는 함수.
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	AMyPlayerHunter* PlayerHunter = GetHunter();
+
+	if (PlayerHunter != nullptr)
+	{
+		//뛰는 상태 가져오기.
+		bIsRunAnim = PlayerHunter->GetIsBeRun();
+
+		//ECharcterState 가져오기.
+		PrevStateAnim = PlayerHunter->GetPrevState();
+		StateAnim = PlayerHunter->GetCharacterState();
+	}
+}
 
 void UMyPlayerHunterAnimation::AnimNotify_LS_Draw()
 {
@@ -170,5 +202,5 @@ void UMyPlayerHunterAnimation::AnimNotify_LS_IaiEnd()
 
 FORCEINLINE AMyPlayerHunter* UMyPlayerHunterAnimation::GetHunter() const
 {
-	return Cast<AMyPlayerHunter>(TryGetPawnOwner());
+	return Cast<AMyPlayerHunter>(Character);
 }

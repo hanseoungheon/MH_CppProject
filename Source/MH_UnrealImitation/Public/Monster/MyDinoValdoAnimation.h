@@ -3,18 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
-#include "MyMonsterState.h"
+#include "MyMonsterAnimInstance.h"
 #include "MyDinoValdoAnimation.generated.h"
 
 /**
  *
  */
 UCLASS()
-class MH_UNREALIMITATION_API UMyDinoValdoAnimation : public UAnimInstance
+class MH_UNREALIMITATION_API UMyDinoValdoAnimation : public UMyMonsterAnimInstance
+
 {
 	GENERATED_BODY()
 
+
+public:
+	UMyDinoValdoAnimation();
+protected:
+	// 애니메이션 초기화할 때 실행되는 함수.
+	virtual void NativeInitializeAnimation() override;
+
+	// 애니메이션 업데이트할 때 프레임 마다 실행되는 함수.
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Chase")
@@ -34,17 +43,6 @@ public:
 	void AnimNotify_DV_SpecialAttack_Start();
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void AnimNotify_DV_SpecialAttack_End();
-
-
-
-
-
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
-	EMonsterState StateAnim = EMonsterState::Peace;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
-	EMonsterState PrevStateAnim = EMonsterState::Peace;
 
 private:
 	class AMyDinoValdo* GetDinovaldo() const;

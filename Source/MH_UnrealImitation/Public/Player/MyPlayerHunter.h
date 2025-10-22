@@ -151,6 +151,11 @@ public:
 		YawRotVector = NewVector;
 	}
 
+	FORCEINLINE bool GetIsBeRun() const
+	{
+		return IsBeRun;
+	}
+
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")

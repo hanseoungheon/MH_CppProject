@@ -3,6 +3,24 @@
 
 #include "Monster/MyDinoValdoAnimation.h"
 #include "Monster/MyDinoValdo.h"
+#include "GameFramework\Character.h"
+#include "GameFramework\CharacterMovementComponent.h"
+
+UMyDinoValdoAnimation::UMyDinoValdoAnimation()
+{
+}
+
+void UMyDinoValdoAnimation::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+	//나중에 상속구조 다시 만들어보기.
+}
+
+void UMyDinoValdoAnimation::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	//나중에 상속구조 다시 만들어보기.
+}
 
 void UMyDinoValdoAnimation::AnimNotify_M_StartChase()
 {

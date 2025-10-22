@@ -284,8 +284,6 @@ void AMyDinoValdo::Angry()
 
 	//그 후 분노상태로 전환.
 	bAngry = true;
-
-
 }
 
 void AMyDinoValdo::DashToSpeicalDash(float TimeLineValue)
