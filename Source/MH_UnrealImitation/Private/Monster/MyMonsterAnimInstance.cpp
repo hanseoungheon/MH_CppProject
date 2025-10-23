@@ -17,7 +17,7 @@ void UMyMonsterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	Monster = Cast<AMyMoster>(Character);
+	Monster = Cast<AMyMonster>(Character);
 
 	if (Monster != nullptr)
 	{

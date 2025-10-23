@@ -7,13 +7,14 @@
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
 #include "InputActionValue.h"
+#include "MyCharacterBase.h"
 #include "GameFramework/Character.h"
 #include "MyCharacterState.h"
 #include "MyPlayerHunter.generated.h"
 
 
 UCLASS()
-class MH_UNREALIMITATION_API AMyPlayerHunter : public ACharacter
+class MH_UNREALIMITATION_API AMyPlayerHunter : public AMyCharacterBase
 {
 	GENERATED_BODY()
 
@@ -36,14 +37,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnLongSwordAndHouse();
 
-	UFUNCTION(Category = "Damage")
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	void OnPlayerDead();
-
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	void PrintHelath(float HealthPower, float MaxHealthPower);
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void OnHunterAttackCheckBegin();
@@ -57,8 +51,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Move")
 	void Rolling();
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void DashToTimeLine(float TimeLineValue,float DashSpeed);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void DashToKiin(float TimeLineValue);
@@ -111,6 +103,11 @@ protected:
 	void StartPickUp();
 
 	void RollRotationChange();
+
+	virtual void Dead() override;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+		AController* EventInstigator, AActor* DamageCauser) override;
 
 public:	
 	// Called every frame
@@ -249,14 +246,9 @@ protected:
 
 	ECharacterState PrevState = ECharacterState::Peace;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
-	float WalkSpeed = 300.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
 	bool IsBeRun = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move")
-	float MovingSpeed = 0.0f;
 
 	UPROPERTY()
 	float CurrentRot; //플레이어의 현재 방향을 정하는데 쓰이는 실수형 변수.
@@ -266,11 +258,6 @@ protected:
 
 	UPROPERTY()
 	float RollingSpeed; //구르는 속도.
-
-	UPROPERTY()
-	float TimeLinePrev; //타임라인 타이머용 변수.
-
-	class UMyDamageReceiver* DamageReceiver = nullptr;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim/LongSword")

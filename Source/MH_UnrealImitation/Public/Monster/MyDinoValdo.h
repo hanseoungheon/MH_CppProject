@@ -11,14 +11,12 @@
  * 
  */
 UCLASS()
-class MH_UNREALIMITATION_API AMyDinoValdo : public AMyMoster
+class MH_UNREALIMITATION_API AMyDinoValdo : public AMyMonster
 {
 	GENERATED_BODY()
 	
 public:
 	AMyDinoValdo();
-
-	virtual void MonsterDead() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void OnTailAttackBegin();
@@ -93,11 +91,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* AttackCollision_Tail01; //部府1
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* AttackCollision_Tail02; //部府1
+	class USphereComponent* AttackCollision_Tail02; //部府2
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* AttackCollision_Tail03; //部府1
+	class USphereComponent* AttackCollision_Tail03; //部府3
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* AttackCollision_Tail04; //部府1
+	class USphereComponent* AttackCollision_Tail04; //部府4
 
 
 

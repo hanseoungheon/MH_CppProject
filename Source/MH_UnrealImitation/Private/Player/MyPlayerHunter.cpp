@@ -26,15 +26,8 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	GetCapsuleComponent()->InitCapsuleSize(41.2f, 96.0f);
 
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
-	//WalkSpeed를 통해 캐릭터의 기본 이동속도 설정.
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-
+	WalkSpeed = 300.0f;
+	RunSpeed = 600.0f;
 	//카메라 설정.
 	CameraBoom
 		= CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -54,7 +47,6 @@ AMyPlayerHunter::AMyPlayerHunter()
 
 	RollingSpeed = 700.0f; //구르기 속도
 
-	TimeLinePrev = 0.0f; //타임라인 체크 변수 초기화.
 
 	//타임라인들 생성.
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
@@ -62,7 +54,6 @@ AMyPlayerHunter::AMyPlayerHunter()
 	GanpaDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("GanpaDashTimeLine"));
 	BreakHeadTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("BreakHeadTimeLine"));
 	IaiDashTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("IaiDashTimeline"));
-
 }
 
 // Called when the game starts or when spawned
@@ -70,13 +61,6 @@ void AMyPlayerHunter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DamageReceiver = FindComponentByClass<UMyDamageReceiver>(); //에디터에서 추가할거임.
-
-	if (DamageReceiver != nullptr)
-	{
-		DamageReceiver->OnDead.AddDynamic(this, &AMyPlayerHunter::OnPlayerDead);
-		DamageReceiver->OnHealthChanged.AddDynamic(this, &AMyPlayerHunter::PrintHelath);
-	}
 
 	//구르기 타임라인 설정.
 	if (RollingCurve != nullptr)
@@ -161,24 +145,24 @@ void AMyPlayerHunter::BeginPlay()
 	
 void AMyPlayerHunter::IsInteract_PickUpWeapon(bool Trigger, AActor* WeaponActor)
 {
-	AMyLongSword* LS = Cast<AMyLongSword>(WeaponActor);
+	AMyLongSword* NewLongSword = Cast<AMyLongSword>(WeaponActor);
 
-	if (LS == nullptr)
+	if (NewLongSword == nullptr)
 	{
 		return;
 	}
 
 	if (Trigger == true)
 	{
-		LS->SetOwner(this);
-		LongSword = LS;
+		NewLongSword->SetOwner(this);
+		LongSword = NewLongSword;
 	}
 
 	else //Trigger == false
 	{
 		if (bHasWeapon == false) //만약 무기를 들고있지 않으면 SetOwner를 nullptr로 설정.(주인해제)
 		{
-			LS->SetOwner(nullptr);
+			NewLongSword->SetOwner(nullptr);
 		}
 	}
 }
@@ -236,29 +220,10 @@ float AMyPlayerHunter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 		}
 	}
 
-	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	DamageReceiver->OnDamageReceived(FinalDamage);
-
-	return FinalDamage;
+	return Super::TakeDamage(DamageAmount,DamageEvent,EventInstigator,DamageCauser);
 }
 
-void AMyPlayerHunter::OnPlayerDead()
-{
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	State = ECharacterState::Dead;
-	
-	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-
-	StopAnimMontage();
-}
-
-void AMyPlayerHunter::PrintHelath(float HealthPower, float MaxHealthPower)
-{
-	UE_LOG(LogTemp, Display, TEXT("Max Player Health :%f\n\n"), DamageReceiver->GetMaxHealthPower());
-	UE_LOG(LogTemp, Display, TEXT("Current Player Health : %f\n\n"), DamageReceiver->GetHealthPower());
-}
 
 void AMyPlayerHunter::OnHunterAttackCheckBegin()
 {
@@ -341,10 +306,9 @@ void AMyPlayerHunter::BeginRun()
 	{
 		//발도상태에서 달리기시 
 		IsBeRun = true;
-		float CurrentMovementSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 		//달리기시 이동속도 2배.
-		GetCharacterMovement()->MaxWalkSpeed = CurrentMovementSpeed * 2.0;
+		GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 	}
 	
 	if (bIsSheathWepaon == false && State == ECharacterState::Battle)
@@ -376,6 +340,12 @@ void AMyPlayerHunter::StopRun()
 
 void AMyPlayerHunter::Attack()	
 {
+	if (bHasWeapon == false)
+	{
+		return;
+	}
+
+
 	//UE_LOG(LogTemp, Display, TEXT("Why Not Working?"));
 	//만약 검을 뽑고있는중이 아니며, 비전투상태일경우. 
 	if (bIsDrawWeapon == false && State == ECharacterState::Peace)
@@ -672,22 +642,6 @@ void AMyPlayerHunter::Rolling()
 }
 
 
-
-void AMyPlayerHunter::DashToTimeLine(float TimeLineValue, float DashSpeed)
-{
-	FVector DashLocation;
-
-	float CurrentTimePrev = TimeLineValue - TimeLinePrev;
-
-	CurrentTimePrev = CurrentTimePrev * DashSpeed;
-
-	DashLocation = GetActorForwardVector() * CurrentTimePrev;
-
-	AddActorWorldOffset(DashLocation, true);
-
-	TimeLinePrev = TimeLineValue;
-}
-
 void AMyPlayerHunter::DashToKiin(float TimeLineValue)
 {
 	float KiinDashPower = 500.0f;
@@ -796,6 +750,12 @@ void AMyPlayerHunter::RollRotationChange()
 	SetActorRotation(NewRot);
 }
 
+void AMyPlayerHunter::Dead()
+{
+	Super::Dead();
+	State = ECharacterState::Dead;
+}
+
 // Called every frame
 void AMyPlayerHunter::Tick(float DeltaTime)
 {
@@ -803,17 +763,6 @@ void AMyPlayerHunter::Tick(float DeltaTime)
 
 	MovingSpeed = GetVelocity().Size2D(); // == FVector length XY
 
-
-	//if (LongSword != nullptr)
-	//{
-	//	UE_LOG(LogTemp, Display, TEXT("Not NULL"));
-	//}
-	//else if (LongSword == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Display, TEXT("Is NULL"));
-	//}
-
-	UE_LOG(LogTemp, Display, TEXT("방향전위벡터의 값 = X: %f, Y: %f"), YawRotVector.X, YawRotVector.Y);
 }
 
 // Called to bind functionality to input

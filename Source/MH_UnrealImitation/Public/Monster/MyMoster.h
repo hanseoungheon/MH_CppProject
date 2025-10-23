@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MyMonsterState.h"
-#include "GameFramework/Character.h"
+#include "MyCharacterBase.h"
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "MyMonsterAIController.h"
@@ -14,7 +14,7 @@
 class UAnimMontage;
 
 UCLASS()
-class MH_UNREALIMITATION_API AMyMoster : public ACharacter
+class MH_UNREALIMITATION_API AMyMonster : public AMyCharacterBase
 {
 	GENERATED_BODY()
 
@@ -23,15 +23,14 @@ class MH_UNREALIMITATION_API AMyMoster : public ACharacter
 	
 public:
 	// Sets default values for this character's properties
-	AMyMoster();
+	AMyMonster();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION(Category = "Attack")
-	void DashToFrontOfTimeLine(float TimeLineValue, float DashSpeed);
-	UFUNCTION(Category = "Attack")
+
+
 	void DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed);
 
 	UFUNCTION(Category = "Attack")
@@ -47,25 +46,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	virtual void MonsterDead();
 
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	void PrintHelath(float HealthPower, float MaxHealthPower);
-
-	//데미지 받기.
-	UFUNCTION(Category = "Damage")
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	//데미지 주기.
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	void ApplyDamamge(AActor* Other, float BaseDamage, AController* InstigatorCtrl);
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "State")
 	virtual void Angry();
 
+	//TakeDamage는 그냥 부모꺼 쓰는걸로.
 
+	virtual void Dead() override;
+
+	//데미지 주기.
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	void ApplyDamamge(AActor* Other, float BaseDamage, AController* InstigatorCtrl);
 
 public:
 
@@ -112,11 +105,6 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float WalkSpeed = 0.0f; // 걷기 스피드
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float RunSpeed = 0.0f; //뛰기 스피드
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	FName TargetPlayerKey = NAME_None; // 타겟플레이어 키(안쓸수도)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
@@ -125,13 +113,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	float Hp = 0.0f; //몬스터 체력
 
-	UPROPERTY()
-	float TimeLinePrev = 0.0f; //타임라인용 타이머 변수.
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float PatrolRadius = 1500.0f;
-
-	class UMyDamageReceiver* DamageReceiver = nullptr;
 
 	float HitBoxRadius = 0.0f;
 	float AttackCollisionRadius = 0.0f;

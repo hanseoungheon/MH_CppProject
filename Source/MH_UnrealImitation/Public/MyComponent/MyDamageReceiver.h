@@ -68,6 +68,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnDead OnDead;
 
+
+
+
+
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float MaxHealthPower = 0.0f;

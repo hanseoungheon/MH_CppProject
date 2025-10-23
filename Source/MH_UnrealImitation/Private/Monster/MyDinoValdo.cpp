@@ -167,24 +167,6 @@ AMyDinoValdo::AMyDinoValdo()
 	AttackCollision_Tail04->SetGenerateOverlapEvents(true);
 }
 
-void AMyDinoValdo::MonsterDead()
-{
-	Super::MonsterDead();
-
-	//히트박스 콜리전 전부 끄기.
-	HitBox_Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Chest->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Leg_Left->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Foot_Left->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Leg_Right->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Foot_Right->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Tail01->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Tail02->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Tail03->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitBox_Tail04->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
 void AMyDinoValdo::OnTailAttackBegin() //꼬리어택공격
 {
 	//꼬리 어택시

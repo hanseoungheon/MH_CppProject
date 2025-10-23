@@ -13,18 +13,13 @@
 #include "AIController.h"
 
 // Sets default values
-AMyMoster::AMyMoster()
+AMyMonster::AMyMonster()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(41.2f, 96.0f);
 
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	TimeLinePrev = 0.0f;
 
@@ -35,7 +30,7 @@ AMyMoster::AMyMoster()
 	PawnSensing->SetPeripheralVisionAngle(30.0f); //시야각
 	PawnSensing->SightRadius = 2000.f; // 시야범위
 
-	PawnSensing->OnSeePawn.AddDynamic(this, &AMyMoster::OnSeePawn);
+	PawnSensing->OnSeePawn.AddDynamic(this, &AMyMonster::OnSeePawn);
 
 	//키 설정.
 	TargetPlayerKey = TEXT("TargetPlayer");
@@ -43,37 +38,13 @@ AMyMoster::AMyMoster()
 }
 
 // Called when the game starts or when spawned
-void AMyMoster::BeginPlay()
+void AMyMonster::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DamageReceiver = FindComponentByClass<UMyDamageReceiver>(); //에디터에서 추가할거임.
-
-	if (DamageReceiver != nullptr)
-	{
-		DamageReceiver->OnDead.AddDynamic(this, &AMyMoster::MonsterDead);
-		DamageReceiver->OnHealthChanged.AddDynamic(this, &AMyMoster::PrintHelath);
-	}
-
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
-void AMyMoster::DashToFrontOfTimeLine(float TimeLineValue, float DashSpeed)
-{
-	FVector DashLocation;
-
-	float CurrentTimePrev = TimeLineValue - TimeLinePrev;
-
-	CurrentTimePrev = CurrentTimePrev * DashSpeed;
-
-	DashLocation = GetActorForwardVector() * CurrentTimePrev;
-
-	AddActorWorldOffset(DashLocation, true);
-
-	TimeLinePrev = TimeLineValue;
-}
-
-void AMyMoster::DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed)
+void AMyMonster::DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed)
 {
 	//UE_LOG(LogTemp, Display, TEXT("DINOVALDO SPD TEST"));
 	AMyPlayerHunter* Hunter = Cast<AMyPlayerHunter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -98,12 +69,12 @@ void AMyMoster::DashToPlayerOfTimeLine(float TimeLineValue, float DashSpeed)
 	TimeLinePrev = TimeLineValue;
 }
 
-void AMyMoster::DashEndToTimeLine()
+void AMyMonster::DashEndToTimeLine()
 {
 	TimeLinePrev = 0.0f;
 }
 
-void AMyMoster::OnSeePawn(APawn* Pawn)
+void AMyMonster::OnSeePawn(APawn* Pawn)
 {
 	if (State == EMonsterState::Peace)
 	{
@@ -137,42 +108,28 @@ void AMyMoster::OnSeePawn(APawn* Pawn)
 	}
 }
 // Called every frame
-void AMyMoster::Tick(float DeltaTime)
+void AMyMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void AMyMoster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMyMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-void AMyMoster::MonsterDead()
+
+
+void AMyMonster::Dead()
 {
+	Super::Dead();
 	State = EMonsterState::Dead;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	StopAnimMontage();
 }
 
-void AMyMoster::PrintHelath(float HealthPower, float MaxHealthPower)
-{
-	UE_LOG(LogTemp, Display, TEXT("Max Monster Health :%f\n\n"),DamageReceiver->GetMaxHealthPower());
-	UE_LOG(LogTemp, Display, TEXT("Current Monster Health : %f\n\n"), DamageReceiver->GetHealthPower());
-}
-
-float AMyMoster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	DamageReceiver->OnDamageReceived(FinalDamage);
-
-	return FinalDamage;
-}
-
-void AMyMoster::ApplyDamamge(AActor* Other, float BaseDamage,AController* InstigatorCtrl)
+void AMyMonster::ApplyDamamge(AActor* Other, float BaseDamage,AController* InstigatorCtrl)
 {
 	if (Other == nullptr || Other == this)
 	{
@@ -200,12 +157,12 @@ void AMyMoster::ApplyDamamge(AActor* Other, float BaseDamage,AController* Instig
 }
 
 
-void AMyMoster::Angry()
+void AMyMonster::Angry()
 {
 	//GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
 
-void AMyMoster::SetMonsterState(const EMonsterState NewState)
+void AMyMonster::SetMonsterState(const EMonsterState NewState)
 {
 	if (State == EMonsterState::Dead)
 	{

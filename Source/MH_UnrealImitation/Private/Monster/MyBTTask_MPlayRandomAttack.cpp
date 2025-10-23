@@ -36,7 +36,7 @@ EBTNodeResult::Type UMyBTTask_MPlayRandomAttack::ExecuteTask(UBehaviorTreeCompon
 		return EBTNodeResult::Failed;
 	}
 
-	AMyMoster* Monster = Cast<AMyMoster>(Character);
+	AMyMonster* Monster = Cast<AMyMonster>(Character);
 
 	if (Monster == nullptr)
 	{

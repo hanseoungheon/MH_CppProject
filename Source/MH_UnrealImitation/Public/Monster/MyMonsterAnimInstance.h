@@ -31,5 +31,5 @@ protected:
 	EMonsterState PrevStateAnim = EMonsterState::Peace;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	class AMyMoster* Monster = nullptr;
+	class AMyMonster* Monster = nullptr;
 };
