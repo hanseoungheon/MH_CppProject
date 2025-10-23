@@ -28,11 +28,14 @@ public:
 
 protected:
 	//죽는 함수.
+	UFUNCTION(Category = "Damage")
 	virtual void Dead();
 
 	//캐릭터의 체력 출력
+	UFUNCTION(Category = "Damage")
 	void PrintHealth(float HealthPower, float MaxHealthPower);
 
+	UFUNCTION(Category = "Damage")
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
